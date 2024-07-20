@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotFollow</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="https://syafa.tech/fav.png">
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            flex: 1;
+        }
+        footer {
+            margin-top: auto;
+        }
+        .line-through {
+            text-decoration: line-through;
+        }
+        .text-gray-500 {
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <div class="container mx-auto p-6 flex-grow">
+        <h1 class="text-2xl font-bold mb-4">NotFollow</h1>
+        <div id="error-message" class="mb-4 text-red-600"></div>
+        <div class="mb-4">
+            <label for="followersFile" class="block mb-2 text-sm font-medium text-gray-900">Choose followers.json</label>
+            <input type="file" id="followersFile" accept=".json" class="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer">
+        </div>
+        <div class="mb-4">
+            <label for="followingFile" class="block mb-2 text-sm font-medium text-gray-900">Choose following.json</label>
+            <input type="file" id="followingFile" accept=".json" class="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer">
+        </div>
+        <button onclick="processFiles()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Check Non-Followers</button>
+        <button data-modal-target="howToModal" data-modal-toggle="howToModal" class="ml-4 text-red-500 hover:text-red-500 focus:outline-none text-lg">?</button>
+        
+        <h2 class="text-xl font-semibold mt-6">People who do not follow you back:</h2>
+        <div class="overflow-x-auto mt-4">
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-normal">No.</th>
+                        <th class="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-normal">Username</th>
+                        <th class="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-normal">Profile</th>
+                        <th class="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-normal">Unfollow</th>
+                    </tr>
+                </thead>
+                <tbody id="resultList"></tbody>
+            </table>
+        </div>
+    </div>
+    <footer class="text-center py-4 bg-gray-100 mt-8">
+        <p class="text-gray-500 text-sm">Copyright © 2024 by <a href="https://github.com/gvoze32" target="_blank" class="font-semibold hover:underline">gvoze32</a></p>
+    </footer>
+
+    <!-- Modal -->
+    <div id="howToModal" tabindex="-1" aria-hidden="true" class="fixed inset-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-3xl max-h-full mx-auto">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow-lg dark:bg-gray-800">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 rounded-t">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        How to Get JSON Files
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="howToModal">
+                        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class="p-6 space-y-6">
+                    <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                        Follow these steps to download your Instagram data:
+                    </p>
+                    <ol class="list-decimal list-inside text-base leading-relaxed text-gray-500 dark:text-gray-400 space-y-2">
+                        <li>Go to your Instagram profile and click on the menu icon (three horizontal lines).</li>
+                        <li>Navigate to "Accounts Center", then click "Your information and permissions".</li>
+                        <li>Click "Download your information", then click "Download or transfer information".</li>
+                        <li>Select the profiles you’d like to download information from.</li>
+                        <li>Click "Next", then select "Some of your information".</li>
+                        <li>Choose "Followers and Following" under Connections and click "Next".</li>
+                        <li>Select "Download to device".</li>
+                        <li>
+                            Choose the file options:
+                            <ul class="list-disc list-inside pl-5 space-y-1">
+                                <li>Date range: All time</li>
+                                <li>Notify: Your email address</li>
+                                <li>Format: JSON</li>
+                                <li>Media quality: Low</li>
+                            </ul>
+                        </li>
+                        <li>Click "Create files".</li>
+                        <li>Once you receive the download completion email, click the link to download the ZIP file.</li>
+                        <li>Extract the ZIP file and locate the followers.json and following.json files.</li>
+                        <li>Upload the followers.json and following.json files to the website.</li>
+                    </ol>
+                </div>
+                <!-- Modal footer -->
+                <div class="flex items-center justify-end p-4 border-t border-gray-200 dark:border-gray-700 rounded-b">
+                    <button data-modal-hide="howToModal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:hover:text-white">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+    <script>
+        let followersData;
+        let followingData;
+
+        document.getElementById('followersFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    followersData = JSON.parse(event.target.result);
+                    console.log("Followers Data:", followersData);
+                    document.getElementById('error-message').textContent = '';
+                } catch (error) {
+                    console.error("Error parsing followers file:", error);
+                    document.getElementById('error-message').textContent = 'Error parsing followers file. Please make sure it is in the correct format.';
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('followingFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    followingData = JSON.parse(event.target.result);
+                    console.log("Following Data:", followingData);
+                    document.getElementById('error-message').textContent = '';
+                } catch (error) {
+                    console.error("Error parsing following file:", error);
+                    document.getElementById('error-message').textContent = 'Error parsing following file. Please make sure it is in the correct format.';
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function processFiles() {
+            if (!Array.isArray(followersData) || !Array.isArray(followingData.relationships_following)) {
+                document.getElementById('error-message').textContent = 'Invalid JSON format. Please upload valid files.';
+                console.error('Invalid JSON format:', { followersData, followingData });
+                return;
+            }
+
+            const followersSet = new Set(followersData.map(f => {
+                if (f.string_list_data && f.string_list_data[0] && f.string_list_data[0].value) {
+                    return f.string_list_data[0].value;
+                } else {
+                    console.error('Invalid follower entry:', f);
+                    return null;
+                }
+            }).filter(Boolean));
+
+            const followingList = followingData.relationships_following.map(f => {
+                if (f.string_list_data && f.string_list_data[0] && f.string_list_data[0].value) {
+                    return {
+                        username: f.string_list_data[0].value,
+                        href: f.string_list_data[0].href
+                    };
+                } else {
+                    console.error('Invalid following entry:', f);
+                    return null;
+                }
+            }).filter(Boolean);
+
+            const nonFollowers = followingList.filter(f => !followersSet.has(f.username));
+
+            console.log("Non-Followers:", nonFollowers);
+
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = '';
+            if (nonFollowers.length === 0) {
+                resultList.innerHTML = '<tr><td colspan="4" class="px-6 py-4 border-b border-gray-200 text-center bg-green-100 text-green-800">Everyone you follow follows you back.</td></tr>';
+            } else {
+                nonFollowers.forEach((user, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "bg-white border-b border-gray-200";
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 text-sm">${index + 1}</td>
+                        <td class="px-6 py-4 text-sm">${user.username}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <a href="${user.href}" target="_blank" class="text-blue-600 hover:underline" onclick="handleLinkClick(${index})">View Profile</a>
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <div class="flex items-center">
+                                <input id="checkbox-${index}" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" onclick="toggleChecked(this, ${index})">
+                                <label for="checkbox-${index}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Unfollowed</label>
+                            </div>
+                        </td>
+                    `;
+                    resultList.appendChild(tr);
+                });
+            }
+        }
+
+        function toggleChecked(checkbox, index) {
+            const tr = checkbox.closest('tr');
+            if (checkbox.checked) {
+                tr.classList.add('line-through', 'text-gray-500');
+            } else {
+                tr.classList.remove('line-through', 'text-gray-500');
+            }
+        }
+
+        function handleLinkClick(index) {
+            const checkbox = document.getElementById(`checkbox-${index}`);
+            checkbox.checked = true;
+            toggleChecked(checkbox, index);
+        }
+    </script>
+</body>
+</html>
