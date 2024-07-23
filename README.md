@@ -33,7 +33,7 @@ A web application to help you identify people who don't follow you back on Insta
 
 ## License
 
-This project is licensed under the AGPL License. See the LICENSE file for details.
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) License. See the LICENSE file for details.
 
 ## Contributing
 
