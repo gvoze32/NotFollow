@@ -127,9 +127,10 @@
           >
             People who don't follow you back
             <p
+              id="total-to-unfollow"
               class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400"
             >
-              Get rid of these people
+              "The oldest and strongest kind of fear is fear of the unknown."
             </p>
           </caption>
           <thead
@@ -382,6 +383,11 @@
         );
 
         console.log("Non-Followers:", nonFollowers);
+
+        const totalToUnfollow = nonFollowers.length;
+        document.getElementById(
+          "total-to-unfollow"
+        ).textContent = `To unfollow: ${totalToUnfollow}`;
 
         const resultList = document.getElementById("resultList");
         resultList.innerHTML = "";
