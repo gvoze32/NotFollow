@@ -83,6 +83,7 @@
           id="followersFile"
           accept=".json"
           type="file"
+          multiple
         />
       </div>
       <div class="mb-4">
@@ -97,6 +98,7 @@
           id="followingFile"
           accept=".json"
           type="file"
+          multiple
         />
       </div>
       <div class="mb-2">
@@ -284,52 +286,55 @@
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/lib/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
     <script>
-      let followersData;
-      let followingData;
+      let followersData = [];
+      let followingData = [];
 
       document
         .getElementById("followersFile")
         .addEventListener("change", function (event) {
-          const file = event.target.files[0];
-          const reader = new FileReader();
-          reader.onload = function (event) {
-            try {
-              followersData = JSON.parse(event.target.result);
-              console.log("Followers Data:", followersData);
-              document.getElementById("error-message").textContent = "";
-            } catch (error) {
-              console.error("Error parsing followers file:", error);
-              document.getElementById("error-message").textContent =
-                "Error parsing followers file. Please make sure it is in the correct format.";
-            }
-          };
-          reader.readAsText(file);
+          const files = event.target.files;
+          for (const file of files) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              try {
+                const parsedData = JSON.parse(event.target.result);
+                followersData.push(parsedData);
+                console.log("Followers Data:", followersData);
+                document.getElementById("error-message").textContent = "";
+              } catch (error) {
+                console.error("Error parsing followers file:", error);
+                document.getElementById("error-message").textContent =
+                  "Error parsing followers file. Please make sure it is in the correct format.";
+              }
+            };
+            reader.readAsText(file);
+          }
         });
 
       document
         .getElementById("followingFile")
         .addEventListener("change", function (event) {
-          const file = event.target.files[0];
-          const reader = new FileReader();
-          reader.onload = function (event) {
-            try {
-              followingData = JSON.parse(event.target.result);
-              console.log("Following Data:", followingData);
-              document.getElementById("error-message").textContent = "";
-            } catch (error) {
-              console.error("Error parsing following file:", error);
-              document.getElementById("error-message").textContent =
-                "Error parsing following file. Please make sure it is in the correct format.";
-            }
-          };
-          reader.readAsText(file);
+          const files = event.target.files;
+          for (const file of files) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              try {
+                const parsedData = JSON.parse(event.target.result);
+                followingData.push(parsedData);
+                console.log("Following Data:", followingData);
+                document.getElementById("error-message").textContent = "";
+              } catch (error) {
+                console.error("Error parsing following file:", error);
+                document.getElementById("error-message").textContent =
+                  "Error parsing following file. Please make sure it is in the correct format.";
+              }
+            };
+            reader.readAsText(file);
+          }
         });
 
       function processFiles() {
-        if (
-          !Array.isArray(followersData) ||
-          !Array.isArray(followingData.relationships_following)
-        ) {
+        if (!followersData.length || !followingData.length) {
           document.getElementById("error-message").textContent =
             "Invalid JSON format. Please upload valid files.";
           console.error("Invalid JSON format:", {
@@ -339,40 +344,38 @@
           return;
         }
 
-        const followersSet = new Set(
-          followersData
-            .map((f) => {
-              if (
-                f.string_list_data &&
-                f.string_list_data[0] &&
-                f.string_list_data[0].value
-              ) {
-                return f.string_list_data[0].value;
-              } else {
-                console.error("Invalid follower entry:", f);
-                return null;
-              }
-            })
-            .filter(Boolean)
-        );
-
-        const followingList = followingData.relationships_following
-          .map((f) => {
+        const followersSet = new Set();
+        followersData.forEach((data) => {
+          data.forEach((f) => {
             if (
               f.string_list_data &&
               f.string_list_data[0] &&
               f.string_list_data[0].value
             ) {
-              return {
+              followersSet.add(f.string_list_data[0].value);
+            } else {
+              console.error("Invalid follower entry:", f);
+            }
+          });
+        });
+
+        const followingList = [];
+        followingData.forEach((data) => {
+          data.relationships_following.forEach((f) => {
+            if (
+              f.string_list_data &&
+              f.string_list_data[0] &&
+              f.string_list_data[0].value
+            ) {
+              followingList.push({
                 username: f.string_list_data[0].value,
                 href: f.string_list_data[0].href,
-              };
+              });
             } else {
               console.error("Invalid following entry:", f);
-              return null;
             }
-          })
-          .filter(Boolean);
+          });
+        });
 
         const nonFollowers = followingList.filter(
           (f) => !followersSet.has(f.username)
