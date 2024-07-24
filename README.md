@@ -7,20 +7,6 @@ A web application to help you identify people who don't follow you back on Insta
 
 - Generates a list of non-followers with their usernames and profiles
 
-- Allows you to mark users as unfollowed
-
-- Dark mode and light mode theme toggle
-
-## Technical Details
-
-- Built with HTML, CSS, and JavaScript
-
-- Uses Tailwind CSS for styling
-
-- Utilizes the Flowbite library for modal functionality
-
-- Supports dark mode and light mode theme toggle using local storage
-
 ## Getting Started
 
 1. Clone this repository to your local machine.
