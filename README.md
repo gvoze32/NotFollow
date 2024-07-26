@@ -1,11 +1,12 @@
 # NotFollow
-A web application to help you identify people who don't follow you back on Instagram.
+
+A web application to help you identify people who don't follow you back.
 
 ## Features
 
-- Supports multiple JSON files for followers and following data
+- Supports multiple JSON files
 
-- Generates a list of non-followers with their usernames and profiles
+- Generates a list of non-followers
 
 ## Getting Started
 
@@ -13,7 +14,7 @@ A web application to help you identify people who don't follow you back on Insta
 
 2. Open the index.html file in your web browser.
 
-3. Upload your Instagram followers and following data in JSON format.
+3. Upload your data in JSON format.
 
 4. Click the "Check Non-Followers" button to generate a list of non-followers.
 

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TikTok NotFollow</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/base.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/x-icon" href="https://syafa.tech/fav.png" />
+    <style>
+      html,
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .container {
+        flex: 1;
+      }
+      footer {
+        margin-top: auto;
+      }
+      .line-through {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen"
+  >
+    <div class="container mx-auto p-6 flex-grow">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold mb-4">TikTok NotFollow</h1>
+        <button
+          id="theme-toggle"
+          type="button"
+          class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5"
+        >
+          <svg
+            id="theme-toggle-dark-icon"
+            class="hidden w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
+            ></path>
+          </svg>
+          <svg
+            id="theme-toggle-light-icon"
+            class="hidden w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      <div id="error-message" class="mb-4 text-red-600"></div>
+      <div class="mb-4">
+        <label
+          for="tiktokDataFile"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          for="file_input"
+          >Choose user_data_tiktok.json</label
+        >
+        <input
+          class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+          id="tiktokDataFile"
+          accept=".json"
+          type="file"
+        />
+      </div>
+      <div class="mb-2">
+        <button
+          type="button"
+          onclick="processFiles()"
+          class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 w-full md:w-auto"
+        >
+          Check Non-Followers
+        </button>
+        <button
+          type="button"
+          data-modal-target="howToModal"
+          data-modal-toggle="howToModal"
+          class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 w-full md:w-auto"
+        >
+          How to get JSON file
+        </button>
+      </div>
+      <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table
+          class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+        >
+          <caption
+            class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"
+          >
+            People who don't follow you back
+            <p
+              id="total-to-unfollow"
+              class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400"
+            >
+              &mdash;
+            </p>
+          </caption>
+          <thead
+            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+          >
+            <tr>
+              <th scope="col" class="px-6 py-3">No.</th>
+              <th scope="col" class="px-6 py-3">Username</th>
+              <th scope="col" class="px-6 py-3">Date Followed</th>
+              <th scope="col" class="px-6 py-3">Profile</th>
+              <th scope="col" class="px-6 py-3">Unfollow</th>
+            </tr>
+          </thead>
+          <tbody id="resultList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800 mt-8">
+      <div
+        class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between"
+      >
+        <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
+          >Copyright © 2024 by
+          <a
+            href="https://github.com/gvoze32"
+            target="_blank"
+            class="font-semibold hover:underline"
+            >gvoze32</a
+          >
+        </span>
+        <ul
+          class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0"
+        >
+          <li class="flex items-center">
+            <svg
+              class="w-4 h-4 me-2 -ms-1 text-[#626890]"
+              aria-hidden="true"
+              focusable="false"
+              data-prefix="fab"
+              data-icon="ethereum"
+              role="img"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 320 512"
+            >
+              <path
+                fill="currentColor"
+                d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"
+              ></path>
+            </svg>
+            <span
+              >Support with Ethereum:
+              0x98441fC52b473d2E8B246315F96701484e6353CC</span
+            >
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+    <div
+      id="howToModal"
+      tabindex="-1"
+      aria-hidden="true"
+      class="fixed inset-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full"
+    >
+      <div class="relative w-full max-w-3xl max-h-full mx-auto">
+        <div class="relative bg-white rounded-lg shadow-lg dark:bg-gray-800">
+          <div
+            class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 rounded-t"
+          >
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+              How to Get TikTok JSON File
+            </h3>
+            <button
+              type="button"
+              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              data-modal-hide="howToModal"
+            >
+              <svg
+                aria-hidden="true"
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+          </div>
+          <div class="p-6 space-y-6">
+            <p
+              class="text-base leading-relaxed text-gray-500 dark:text-gray-400"
+            >
+              Follow these steps to download your TikTok data:
+            </p>
+            <ol
+              class="list-decimal list-inside text-base leading-relaxed text-gray-500 dark:text-gray-400 space-y-2"
+            >
+              <li>Open TikTok and go to your profile.</li>
+              <li>Tap the three-line menu icon in the top right.</li>
+              <li>Go to "Settings and privacy".</li>
+              <li>Tap "Account", then tap on "Download your data".</li>
+              <li>Tap "Select data to download".</li>
+              <li>Choose "Custom" then check "Profile and posts".</li>
+              <li>Tap "Select file format".</li>
+              <li>Select "JSON" as the file format.</li>
+              <li>Tap "Request data".</li>
+              <li>Once ready, download the ZIP file containing your data.</li>
+              <li>Extract the ZIP file and locate the user_data.json file.</li>
+            </ol>
+          </div>
+          <div
+            class="flex items-center justify-end p-4 border-t border-gray-200 dark:border-gray-700 rounded-b"
+          >
+            <button
+              data-modal-hide="howToModal"
+              type="button"
+              class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/lib/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    <script>
+      let userData = null;
+
+      document
+        .getElementById("tiktokDataFile")
+        .addEventListener("change", function (event) {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              try {
+                userData = JSON.parse(event.target.result);
+                console.log("TikTok User Data:", userData);
+                document.getElementById("error-message").textContent = "";
+              } catch (error) {
+                console.error("Error parsing TikTok data file:", error);
+                document.getElementById("error-message").textContent =
+                  "Error parsing TikTok data file. Please make sure it is in the correct format.";
+              }
+            };
+            reader.readAsText(file);
+          }
+        });
+
+      function processFiles() {
+        if (!userData) {
+          document.getElementById("error-message").textContent =
+            "Invalid JSON format. Please upload a valid TikTok user data file.";
+          return;
+        }
+
+        const followersSet = new Set(
+          userData.Profile["Follower List"].FansList.map((f) => f.UserName)
+        );
+
+        const followingList = userData.Profile["Following List"].Following.map(
+          (f) => ({
+            username: f.UserName,
+            date: f.Date,
+          })
+        );
+
+        const nonFollowers = followingList.filter(
+          (f) => !followersSet.has(f.username)
+        );
+
+        console.log("Non-Followers:", nonFollowers);
+
+        const totalToUnfollow = nonFollowers.length;
+        document.getElementById(
+          "total-to-unfollow"
+        ).textContent = `To unfollow: ${totalToUnfollow}`;
+
+        const resultList = document.getElementById("resultList");
+        resultList.innerHTML = "";
+        if (nonFollowers.length === 0) {
+          resultList.innerHTML =
+            '<tr><td colspan="5" class="px-6 py-4 border-b border-gray-200 text-center bg-green-100 text-green-800">Everyone you follow follows you back.</td></tr>';
+        } else {
+          nonFollowers.forEach((user, index) => {
+            const tr = document.createElement("tr");
+            tr.className =
+              "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600";
+            tr.innerHTML = `
+              <td class="px-6 py-4">${index + 1}</td>
+              <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">${
+                user.username
+              }</td>
+              <td class="px-6 py-4">${user.date}</td>
+              <td class="px-6 py-4">
+                <a href="https://www.tiktok.com/@${
+                  user.username
+                }" target="_blank" class="text-blue-600 hover:underline" onclick="handleLinkClick(${index})">View Profile</a>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center">
+                  <input id="checkbox-${index}" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" onclick="toggleChecked(this, ${index})">
+                  <label for="checkbox-${index}" class="ml-2 text-gray-900 dark:text-gray-300">Unfollowed</label>
+                </div>
+              </td>
+            `;
+            resultList.appendChild(tr);
+          });
+        }
+      }
+
+      function toggleChecked(checkbox, index) {
+        const tr = checkbox.closest("tr");
+        if (checkbox.checked) {
+          tr.classList.add("line-through", "text-gray-500");
+        } else {
+          tr.classList.remove("line-through", "text-gray-500");
+        }
+      }
+
+      function handleLinkClick(index) {
+        const checkbox = document.getElementById(`checkbox-${index}`);
+        checkbox.checked = true;
+        toggleChecked(checkbox, index);
+      }
+
+      if (
+        localStorage.getItem("color-theme") === "dark" ||
+        (!("color-theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+
+      var themeToggleDarkIcon = document.getElementById(
+        "theme-toggle-dark-icon"
+      );
+      var themeToggleLightIcon = document.getElementById(
+        "theme-toggle-light-icon"
+      );
+
+      if (
+        localStorage.getItem("color-theme") === "dark" ||
+        (!("color-theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        themeToggleLightIcon.classList.remove("hidden");
+      } else {
+        themeToggleDarkIcon.classList.remove("hidden");
+      }
+
+      var themeToggleBtn = document.getElementById("theme-toggle");
+
+      themeToggleBtn.addEventListener("click", function () {
+        themeToggleDarkIcon.classList.toggle("hidden");
+        themeToggleLightIcon.classList.toggle("hidden");
+
+        if (localStorage.getItem("color-theme")) {
+          if (localStorage.getItem("color-theme") === "light") {
+            document.documentElement.classList.add("dark");
+            localStorage.setItem("color-theme", "dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("color-theme", "light");
+          }
+        } else {
+          if (document.documentElement.classList.contains("dark")) {
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("color-theme", "light");
+          } else {
+            document.documentElement.classList.add("dark");
+            localStorage.setItem("color-theme", "dark");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
