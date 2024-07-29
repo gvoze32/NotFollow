@@ -1,6 +1,6 @@
 # NotFollow
 
-A web application to help you identify people who don't follow you back.
+A web application to help you identify people who don't follow you back on social media.
 
 ## Features
 
