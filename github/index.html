@@ -196,8 +196,8 @@
 
         try {
           const [followers, following] = await Promise.all([
-            fetchAllPages(`https://api.github.com/users/${username}/followers`),
-            fetchAllPages(`https://api.github.com/users/${username}/following`)
+            fetchAllPages(`https://api.github.com/users/${username}/followers?per_page=5000`),
+            fetchAllPages(`https://api.github.com/users/${username}/following?per_page=5000`)
           ]);
 
           const followersSet = new Set(followers.map(f => f.login));
