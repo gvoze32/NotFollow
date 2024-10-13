@@ -1,197 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NotFollow</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
-      rel="stylesheet"
-    />
-    <link rel="icon" type="image/x-icon" href="https://syafa.tech/fav.png" />
-    <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-      }
-      .content {
-        flex: 1;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100 dark:bg-gray-900">
-    <div class="content container mx-auto px-4 py-8">
-      <div
-        class="w-full p-4 text-center bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700"
-      >
-        <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
-          NotFollow
-        </h5>
-        <p class="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
-          Discover Who's Not Following You Back on Social Media
-        </p>
-        <div class="mb-5 text-left text-gray-500 sm:text-lg dark:text-gray-400">
-          <p class="mb-3">
-            Check who doesn't follow you back, the ultimate tool to track who
-            isn't following you back on your favorite social media platforms.
-            With this, you can easily find out who isn't following you back, and
-            take necessary actions to manage your follower list more
-            effectively.
-          </p>
-          <h6 class="font-bold mt-4 mb-2">Features</h6>
-          <ul class="list-inside">
-            <li>
-              <strong>🔍 Identify Non-Followers:</strong> Browse through your
-              followers list and discover who isn't following you back. This
-              tool provides accurate and quick analysis so you can immediately
-              see who isn't following you back.
-            </li>
-            <li>
-              <strong>📊 Detailed Reports:</strong> Get comprehensive reports
-              about your followers.
-            </li>
-            <li>
-              <strong>⚡ Easy to Use:</strong> The user-friendly interface makes
-              this incredibly easy to use, even for beginners. Just click a
-              button to start the analysis and see the results in seconds.
-            </li>
-            <li>
-              <strong>🛡️ Safe and Secure:</strong> Your privacy and data
-              security are top priorities. This tool does not store or share
-              your personal information with third parties. All analyses are
-              conducted anonymously and securely.
-            </li>
-          </ul>
-        </div>
-        <div
-          class="items-center justify-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4 rtl:space-x-reverse"
-        >
-          <a
-            href="/instagram"
-            class="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 text-white rounded-lg inline-flex items-center justify-center px-4 py-2.5 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-          >
-            <svg
-              class="me-3 w-7 h-7 fill-white"
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fab"
-              data-icon="instagram"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 50 50"
-            >
-              <path
-                d="M 16 3 C 8.8324839 3 3 8.8324839 3 16 L 3 34 C 3 41.167516 8.8324839 47 16 47 L 34 47 C 41.167516 47 47 41.167516 47 34 L 47 16 C 47 8.8324839 41.167516 3 34 3 L 16 3 z M 16 5 L 34 5 C 40.086484 5 45 9.9135161 45 16 L 45 34 C 45 40.086484 40.086484 45 34 45 L 16 45 C 9.9135161 45 5 40.086484 5 34 L 5 16 C 5 9.9135161 9.9135161 5 16 5 z M 37 11 A 2 2 0 0 0 35 13 A 2 2 0 0 0 37 15 A 2 2 0 0 0 39 13 A 2 2 0 0 0 37 11 z M 25 14 C 18.936712 14 14 18.936712 14 25 C 14 31.063288 18.936712 36 25 36 C 31.063288 36 36 31.063288 36 25 C 36 18.936712 31.063288 14 25 14 z M 25 16 C 29.982407 16 34 20.017593 34 25 C 34 29.982407 29.982407 34 25 34 C 20.017593 34 16 29.982407 16 25 C 16 20.017593 20.017593 16 25 16 z"
-              ></path>
-            </svg>
-            <div class="text-left rtl:text-right">
-              <div class="mb-1 text-xs">Check</div>
-              <div class="-mt-1 font-sans text-sm font-semibold">Instagram</div>
-            </div>
-          </a>
-          <a
-            href="/tiktok"
-            class="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 text-white rounded-lg inline-flex items-center justify-center px-4 py-2.5 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-          >
-            <svg
-              class="me-3 w-7 h-7 fill-white"
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fab"
-              data-icon="tiktok"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 50 50"
-            >
-              <path
-                d="M 9 4 C 6.2495759 4 4 6.2495759 4 9 L 4 41 C 4 43.750424 6.2495759 46 9 46 L 41 46 C 43.750424 46 46 43.750424 46 41 L 46 9 C 46 6.2495759 43.750424 4 41 4 L 9 4 z M 9 6 L 41 6 C 42.671576 6 44 7.3284241 44 9 L 44 41 C 44 42.671576 42.671576 44 41 44 L 9 44 C 7.3284241 44 6 42.671576 6 41 L 6 9 C 6 7.3284241 7.3284241 6 9 6 z M 26.042969 10 A 1.0001 1.0001 0 0 0 25.042969 10.998047 C 25.042969 10.998047 25.031984 15.873262 25.021484 20.759766 C 25.016184 23.203017 25.009799 25.64879 25.005859 27.490234 C 25.001922 29.331679 25 30.496833 25 30.59375 C 25 32.409009 23.351421 33.892578 21.472656 33.892578 C 19.608867 33.892578 18.121094 32.402853 18.121094 30.539062 C 18.121094 28.675273 19.608867 27.1875 21.472656 27.1875 C 21.535796 27.1875 21.663054 27.208245 21.880859 27.234375 A 1.0001 1.0001 0 0 0 23 26.240234 L 23 22.039062 A 1.0001 1.0001 0 0 0 22.0625 21.041016 C 21.906673 21.031216 21.710581 21.011719 21.472656 21.011719 C 16.223131 21.011719 11.945313 25.289537 11.945312 30.539062 C 11.945312 35.788589 16.223131 40.066406 21.472656 40.066406 C 26.72204 40.066409 31 35.788588 31 30.539062 L 31 21.490234 C 32.454611 22.653646 34.267517 23.390625 36.269531 23.390625 C 36.542588 23.390625 36.802305 23.374442 37.050781 23.351562 A 1.0001 1.0001 0 0 0 37.958984 22.355469 L 37.958984 17.685547 A 1.0001 1.0001 0 0 0 37.03125 16.6875 C 33.886609 16.461891 31.379838 14.012216 31.052734 10.896484 A 1.0001 1.0001 0 0 0 30.058594 10 L 26.042969 10 z M 27.041016 12 L 29.322266 12 C 30.049047 15.2987 32.626734 17.814404 35.958984 18.445312 L 35.958984 21.310547 C 33.820114 21.201935 31.941489 20.134948 30.835938 18.453125 A 1.0001 1.0001 0 0 0 29 19.003906 L 29 30.539062 C 29 34.707538 25.641273 38.066406 21.472656 38.066406 C 17.304181 38.066406 13.945312 34.707538 13.945312 30.539062 C 13.945312 26.538539 17.066083 23.363182 21 23.107422 L 21 25.283203 C 18.286416 25.535721 16.121094 27.762246 16.121094 30.539062 C 16.121094 33.483274 18.528445 35.892578 21.472656 35.892578 C 24.401892 35.892578 27 33.586491 27 30.59375 C 27 30.64267 27.001859 29.335571 27.005859 27.494141 C 27.009759 25.65271 27.016224 23.20692 27.021484 20.763672 C 27.030884 16.376775 27.039186 12.849206 27.041016 12 z"
-              ></path>
-            </svg>
-            <div class="text-left rtl:text-right">
-              <div class="mb-1 text-xs">Check</div>
-              <div class="-mt-1 font-sans text-sm font-semibold">TikTok</div>
-            </div>
-          </a>
-          <a
-            href="/x"
-            class="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 text-white rounded-lg inline-flex items-center justify-center px-4 py-2.5 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-          >
-            <svg
-              class="me-3 w-7 h-7 fill-white"
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fab"
-              data-icon="x"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 50 50"
-            >
-              <path
-                d="M 5.9199219 6 L 20.582031 27.375 L 6.2304688 44 L 9.4101562 44 L 21.986328 29.421875 L 31.986328 44 L 44 44 L 28.681641 21.669922 L 42.199219 6 L 39.029297 6 L 27.275391 19.617188 L 17.933594 6 L 5.9199219 6 z M 9.7167969 8 L 16.880859 8 L 40.203125 42 L 33.039062 42 L 9.7167969 8 z"
-              ></path>
-            </svg>
-            <div class="text-left rtl:text-right">
-              <div class="mb-1 text-xs">Check</div>
-              <div class="-mt-1 font-sans text-sm font-semibold">X</div>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
 
-    <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800">
-      <div
-        class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between"
-      >
-        <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
-          >Copyright © 2024 by
-          <a
-            href="https://github.com/gvoze32"
-            target="_blank"
-            class="font-semibold hover:underline"
-            >gvoze32</a
-          >
-          &mdash;
-          <a
-            href="https://unfollow.syafa.tech/"
-            target="_blank"
-            class="font-semibold hover:underline"
-            >Mirror</a
-          >
-        </span>
-        <ul
-          class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0"
-        >
-          <li class="flex items-center">
-            <svg
-              class="w-4 h-4 me-2 -ms-1 text-[#626890]"
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fab"
-              data-icon="ethereum"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 320 512"
-            >
-              <path
-                fill="currentColor"
-                d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"
-              ></path>
-            </svg>
-            <span
-              >Support with Ethereum:
-              0x98441fC52b473d2E8B246315F96701484e6353CC</span
-            >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NotFollow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="https://syafa.tech/fav.png" />
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content {
+      flex: 1;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900">
+  <div class="content container mx-auto px-4 py-8">
+    <div class="w-full p-4 text-center bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
+      <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
+        NotFollow
+      </h5>
+      <p class="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
+        Discover Who's Not Following You Back on Social Media
+      </p>
+      <div class="mb-5 text-left text-gray-500 sm:text-lg dark:text-gray-400">
+        <p class="mb-3">
+          Check who doesn't follow you back, the ultimate tool to track who
+          isn't following you back on your favorite social media platforms.
+          With this, you can easily find out who isn't following you back, and
+          take necessary actions to manage your follower list more
+          effectively.
+        </p>
+        <h6 class="font-bold mt-4 mb-2">Features</h6>
+        <ul class="list-inside">
+          <li>
+            <strong>🔍 Identify Non-Followers:</strong> Browse through your
+            followers list and discover who isn't following you back. This
+            tool provides accurate and quick analysis so you can immediately
+            see who isn't following you back.
+          </li>
+          <li>
+            <strong>📊 Detailed Reports:</strong> Get comprehensive reports
+            about your followers.
+          </li>
+          <li>
+            <strong>⚡ Easy to Use:</strong> The user-friendly interface makes
+            this incredibly easy to use, even for beginners. Just click a
+            button to start the analysis and see the results in seconds.
+          </li>
+          <li>
+            <strong>🛡️ Safe and Secure:</strong> Your privacy and data
+            security are top priorities. This tool does not store or share
+            your personal information with third parties. All analyses are
+            conducted anonymously and securely.
           </li>
         </ul>
       </div>
-    </footer>
+      <div class="items-center justify-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4 rtl:space-x-reverse">
+        <a href="/instagram" class="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 text-white rounded-lg inline-flex items-center justify-center px-4 py-2.5 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
+          <svg class="me-3 w-7 h-7 fill-white" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="instagram" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+            <path d="M 16 3 C 8.8324839 3 3 8.8324839 3 16 L 3 34 C 3 41.167516 8.8324839 47 16 47 L 34 47 C 41.167516 47 47 41.167516 47 34 L 47 16 C 47 8.8324839 41.167516 3 34 3 L 16 3 z M 16 5 L 34 5 C 40.086484 5 45 9.9135161 45 16 L 45 34 C 45 40.086484 40.086484 45 34 45 L 16 45 C 9.9135161 45 5 40.086484 5 34 L 5 16 C 5 9.9135161 9.9135161 5 16 5 z M 37 11 A 2 2 0 0 0 35 13 A 2 2 0 0 0 37 15 A 2 2 0 0 0 39 13 A 2 2 0 0 0 37 11 z M 25 14 C 18.936712 14 14 18.936712 14 25 C 14 31.063288 18.936712 36 25 36 C 31.063288 36 36 31.063288 36 25 C 36 18.936712 31.063288 14 25 14 z M 25 16 C 29.982407 16 34 20.017593 34 25 C 34 29.982407 29.982407 34 25 34 C 20.017593 34 16 29.982407 16 25 C 16 20.017593 20.017593 16 25 16 z"></path>
+          </svg>
+          <div class="text-left rtl:text-right">
+            <div class="mb-1 text-xs">Check</div>
+            <div class="-mt-1 font-sans text-sm font-semibold">Instagram</div>
+          </div>
+        </a>
+        <a href="/tiktok" class="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 text-white rounded-lg inline-flex items-center justify-center px-4 py-2.5 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
+          <svg class="me-3 w-7 h-7 fill-white" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="tiktok" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+            <path d="M 9 4 C 6.2495759 4 4 6.2495759 4 9 L 4 41 C 4 43.750424 6.2495759 46 9 46 L 41 46 C 43.750424 46 46 43.750424 46 41 L 46 9 C 46 6.2495759 43.750424 4 41 4 L 9 4 z M 9 6 L 41 6 C 42.671576 6 44 7.3284241 44 9 L 44 41 C 44 42.671576 42.671576 44 41 44 L 9 44 C 7.3284241 44 6 42.671576 6 41 L 6 9 C 6 7.3284241 7.3284241 6 9 6 z M 26.042969 10 A 1.0001 1.0001 0 0 0 25.042969 10.998047 C 25.042969 10.998047 25.031984 15.873262 25.021484 20.759766 C 25.016184 23.203017 25.009799 25.64879 25.005859 27.490234 C 25.001922 29.331679 25 30.496833 25 30.59375 C 25 32.409009 23.351421 33.892578 21.472656 33.892578 C 19.608867 33.892578 18.121094 32.402853 18.121094 30.539062 C 18.121094 28.675273 19.608867 27.1875 21.472656 27.1875 C 21.535796 27.1875 21.663054 27.208245 21.880859 27.234375 A 1.0001 1.0001 0 0 0 23 26.240234 L 23 22.039062 A 1.0001 1.0001 0 0 0 22.0625 21.041016 C 21.906673 21.031216 21.710581 21.011719 21.472656 21.011719 C 16.223131 21.011719 11.945313 25.289537 11.945312 30.539062 C 11.945312 35.788589 16.223131 40.066406 21.472656 40.066406 C 26.72204 40.066409 31 35.788588 31 30.539062 L 31 21.490234 C 32.454611 22.653646 34.267517 23.390625 36.269531 23.390625 C 36.542588 23.390625 36.802305 23.374442 37.050781 23.351562 A 1.0001 1.0001 0 0 0 37.958984 22.355469 L 37.958984 17.685547 A 1.0001 1.0001 0 0 0 37.03125 16.6875 C 33.886609 16.461891 31.379838 14.012216 31.052734 10.896484 A 1.0001 1.0001 0 0 0 30.058594 10 L 26.042969 10 z M 27.041016 12 L 29.322266 12 C 30.049047 15.2987 32.626734 17.814404 35.958984 18.445312 L 35.958984 21.310547 C 33.820114 21.201935 31.941489 20.134948 30.835938 18.453125 A 1.0001 1.0001 0 0 0 29 19.003906 L 29 30.539062 C 29 34.707538 25.641273 38.066406 21.472656 38.066406 C 17.304181 38.066406 13.945312 34.707538 13.945312 30.539062 C 13.945312 26.538539 17.066083 23.363182 21 23.107422 L 21 25.283203 C 18.286416 25.535721 16.121094 27.762246 16.121094 30.539062 C 16.121094 33.483274 18.528445 35.892578 21.472656 35.892578 C 24.401892 35.892578 27 33.586491 27 30.59375 C 27 30.64267 27.001859 29.335571 27.005859 27.494141 C 27.009759 25.65271 27.016224 23.20692 27.021484 20.763672 C 27.030884 16.376775 27.039186 12.849206 27.041016 12 z"></path>
+          </svg>
+          <div class="text-left rtl:text-right">
+            <div class="mb-1 text-xs">Check</div>
+            <div class="-mt-1 font-sans text-sm font-semibold">TikTok</div>
+          </div>
+        </a>
+        <a href="/x" class="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 text-white rounded-lg inline-flex items-center justify-center px-4 py-2.5 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
+          <svg class="me-3 w-7 h-7 fill-white" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="x" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+            <path d="M 5.9199219 6 L 20.582031 27.375 L 6.2304688 44 L 9.4101562 44 L 21.986328 29.421875 L 31.986328 44 L 44 44 L 28.681641 21.669922 L 42.199219 6 L 39.029297 6 L 27.275391 19.617188 L 17.933594 6 L 5.9199219 6 z M 9.7167969 8 L 16.880859 8 L 40.203125 42 L 33.039062 42 L 9.7167969 8 z"></path>
+          </svg>
+          <div class="text-left rtl:text-right">
+            <div class="mb-1 text-xs">Check</div>
+            <div class="-mt-1 font-sans text-sm font-semibold">X</div>
+          </div>
+        </a>
+        <a href="/github" class="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 text-white rounded-lg inline-flex items-center justify-center px-4 py-2.5 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-github">
+            <path d="M16 22.027v-2.87a3.37 3.37 0 0 0-.94-2.621c3.14-.352 6.44-1.54 6.44-6.96a5.445 5.445 0 0 0-1.508-3.773 5.07 5.07 0 0 0-.091-3.773s-1.18-.379-3.874 1.44a13.241 13.241 0 0 0-7.056 0C5.867 3.425 4.687 3.803 4.687 3.803a5.07 5.07 0 0 0-.091 3.773A5.445 5.445 0 0 0 3.088 9.576c0 5.399 3.26 6.607 6.36 6.972a3.37 3.37 0 0 0-.94 2.571v2.908"></path>
+            <path d="M9 20.027c-3 .973-5-1.5-5-1.5"></path>
+          </svg>
 
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/lib/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
-  </body>
+          </svg>
+          <div class="text-left rtl:text-right">
+            <div class="mb-1 text-xs">Check</div>
+            <div class="-mt-1 font-sans text-sm font-semibold">Github</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800">
+    <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+      <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">Copyright © 2024 by
+        <a href="https://github.com/gvoze32" target="_blank" class="font-semibold hover:underline">gvoze32</a>
+        &mdash;
+        <a href="https://unfollow.syafa.tech/" target="_blank" class="font-semibold hover:underline">Mirror</a>
+      </span>
+      <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+        <li class="flex items-center">
+          <svg class="w-4 h-4 me-2 -ms-1 text-[#626890]" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="ethereum" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+            <path fill="currentColor" d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"></path>
+          </svg>
+          <span>Support with Ethereum:
+            0x98441fC52b473d2E8B246315F96701484e6353CC</span>
+        </li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/lib/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+</body>
+
 </html>
