@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Github NotFollow</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/base.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/x-icon" href="https://syafa.tech/fav.png" />
+    <style>
+      html,
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .container {
+        flex: 1;
+      }
+      footer {
+        margin-top: auto;
+      }
+      .line-through {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen"
+  >
+    <div class="container mx-auto p-6 flex-grow">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold mb-4">Github NotFollow</h1>
+        <button
+          id="theme-toggle"
+          type="button"
+          class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5"
+        >
+          <svg
+            id="theme-toggle-dark-icon"
+            class="hidden w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
+            ></path>
+          </svg>
+          <svg
+            id="theme-toggle-light-icon"
+            class="hidden w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      <div id="error-message" class="mb-4 text-red-600"></div>
+      <div class="mb-4">
+        <label
+          for="username"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >Enter GitHub Username</label
+        >
+        <input
+          type="text"
+          id="username"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="e.g. Yunnie-pin"
+          required
+        />
+      </div>
+      <div class="mb-2">
+        <button
+          type="button"
+          onclick="checkNonFollowers()"
+          class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 w-full md:w-auto"
+        >
+          Check Non-Followers
+        </button>
+      </div>
+      <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table
+          class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+        >
+          <caption
+            class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"
+          >
+            People who don't follow you back
+            <p
+              id="total-to-unfollow"
+              class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400"
+            >
+              &mdash;
+            </p>
+          </caption>
+          <thead
+            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+          >
+            <tr>
+              <th scope="col" class="px-6 py-3">No.</th>
+              <th scope="col" class="px-6 py-3">Image</th>
+              <th scope="col" class="px-6 py-3">Username</th>
+              <th scope="col" class="px-6 py-3">Profile</th>
+              <!-- <th scope="col" class="px-6 py-3">Unfollow</th> -->
+            </tr>
+          </thead>
+          <tbody id="resultList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800 mt-8">
+      <div
+        class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between"
+      >
+        <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
+          >Copyright © 2024 by
+          <a
+            href="https://github.com/gvoze32"
+            target="_blank"
+            class="font-semibold hover:underline"
+            >gvoze32</a
+          >
+        </span>
+        <ul
+          class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0"
+        >
+          <li class="flex items-center">
+            <svg
+              class="w-4 h-4 me-2 -ms-1 text-[#626890]"
+              aria-hidden="true"
+              focusable="false"
+              data-prefix="fab"
+              data-icon="ethereum"
+              role="img"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 320 512"
+            >
+              <path
+                fill="currentColor"
+                d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"
+              ></path>
+            </svg>
+            <span
+              >Support with Ethereum:
+              0x98441fC52b473d2E8B246315F96701484e6353CC</span
+            >
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/lib/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    <script>
+      async function fetchAllPages(url) {
+        let allData = [];
+        let page = 1;
+        let hasMorePages = true;
+
+        while (hasMorePages) {
+          const response = await fetch(`${url}?per_page=100&page=${page}`);
+          if (!response.ok) throw new Error('Failed to fetch data');
+          const data = await response.json();
+          allData = allData.concat(data);
+          hasMorePages = data.length === 100;
+          page++;
+        }
+
+        return allData;
+      }
+
+      async function checkNonFollowers() {
+        const username = document.getElementById('username').value;
+        if (!username) {
+          document.getElementById('error-message').textContent = 'Please enter a GitHub username.';
+          return;
+        }
+
+        document.getElementById('error-message').textContent = '';
+        document.getElementById('resultList').innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">Loading...</td></tr>';
+
+        try {
+          const [followers, following] = await Promise.all([
+            fetchAllPages(`https://api.github.com/users/${username}/followers`),
+            fetchAllPages(`https://api.github.com/users/${username}/following`)
+          ]);
+
+          const followersSet = new Set(followers.map(f => f.login));
+          const nonFollowers = following.filter(f => !followersSet.has(f.login));
+
+          displayResults(nonFollowers);
+        } catch (error) {
+          document.getElementById('error-message').textContent = `Error: ${error.message}`;
+          document.getElementById('resultList').innerHTML = '';
+        }
+      }
+
+      function displayResults(nonFollowers) {
+        const resultList = document.getElementById('resultList');
+        const totalToUnfollow = document.getElementById('total-to-unfollow');
+
+        totalToUnfollow.textContent = `To unfollow: ${nonFollowers.length}`;
+
+        if (nonFollowers.length === 0) {
+          resultList.innerHTML = '<tr><td colspan="4" class="px-6 py-4 border-b border-gray-200 text-center bg-green-100 text-green-800">Everyone you follow follows you back.</td></tr>';
+        } else {
+          resultList.innerHTML = nonFollowers.map((user, index) => `
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+              <td class="px-6 py-4">${index + 1}</td>
+              <td class="px-6 py-4">
+                <img src="${user.avatar_url}" alt="${user.login}'s avatar" class="w-8 h-8 rounded-full">
+              </td>
+              <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">${user.login}</td>
+              <td class="px-6 py-4">
+                <a href="${user.html_url}" target="_blank" class="text-blue-600 hover:underline" onclick="handleLinkClick(${index})">View Profile</a>
+              </td>
+              
+            </tr>
+          `).join('');
+        }
+      }
+
+      function toggleChecked(checkbox, index) {
+        const tr = checkbox.closest("tr");
+        if (checkbox.checked) {
+          tr.classList.add("line-through", "text-gray-500");
+        } else {
+          tr.classList.remove("line-through", "text-gray-500");
+        }
+      }
+
+      function handleLinkClick(index) {
+        const checkbox = document.getElementById(`checkbox-${index}`);
+        checkbox.checked = true;
+        toggleChecked(checkbox, index);
+      }
+
+      // Theme toggle logic
+      if (
+        localStorage.getItem("color-theme") === "dark" ||
+        (!("color-theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+
+      var themeToggleDarkIcon = document.getElementById("theme-toggle-dark-icon");
+      var themeToggleLightIcon = document.getElementById("theme-toggle-light-icon");
+
+      if (
+        localStorage.getItem("color-theme") === "dark" ||
+        (!("color-theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        themeToggleLightIcon.classList.remove("hidden");
+      } else {
+        themeToggleDarkIcon.classList.remove("hidden");
+      }
+
+      var themeToggleBtn = document.getElementById("theme-toggle");
+
+      themeToggleBtn.addEventListener("click", function () {
+        themeToggleDarkIcon.classList.toggle("hidden");
+        themeToggleLightIcon.classList.toggle("hidden");
+
+        if (localStorage.getItem("color-theme")) {
+          if (localStorage.getItem("color-theme") === "light") {
+            document.documentElement.classList.add("dark");
+            localStorage.setItem("color-theme", "dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("color-theme", "light");
+          }
+        } else {
+          if (document.documentElement.classList.contains("dark")) 
+          {
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("color-theme", "light");
+          } else {
+            document.documentElement.classList.add("dark");
+            localStorage.setItem("color-theme", "dark");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
