@@ -1,0 +1,573 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+---
+
+<Layout title="NotFollow Helper Launcher - Sequential Tab Opener">
+    <Navbar />
+
+    <section
+        class="relative pt-24 pb-6 px-4 overflow-hidden bg-white dark:bg-gray-950"
+    >
+        <div class="absolute inset-0 z-0 opacity-5 dark:opacity-10">
+            <div
+                class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]"
+            >
+            </div>
+        </div>
+
+        <div class="max-w-2xl mx-auto text-center z-10 relative">
+            <h1
+                class="text-2xl md:text-3xl font-bold mb-2 text-black dark:text-white tracking-tight"
+            >
+                Unfollow Helper
+            </h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Open profiles one-by-one. Keep this tab open, then click
+                <strong>Open Next</strong>.
+            </p>
+        </div>
+    </section>
+
+    <section class="pb-10 px-4 bg-white dark:bg-gray-950">
+        <div class="max-w-3xl mx-auto">
+            <div
+                id="error-message"
+                class="mb-4 text-sm text-red-600 dark:text-red-400"
+            >
+            </div>
+
+            <div
+                class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl p-6 mb-4"
+            >
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label
+                            for="helperData"
+                            class="block mb-2 text-sm font-medium text-black dark:text-white"
+                        >
+                            Paste list JSON (or newline-separated URLs)
+                        </label>
+                        <textarea
+                            id="helperData"
+                            rows="10"
+                            class="block w-full text-sm text-gray-900 dark:text-gray-200 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200 p-3"
+                            placeholder='Supported inputs:
+1) JSON array of URLs:
+["https://...", "https://..."]
+
+2) JSON array of objects (common shapes):
+[{ "href": "https://..." }, { "url": "https://..." }, { "html_url": "https://..." }]
+
+3) Newline-separated URLs:
+https://...
+https://...'
+                        ></textarea>
+
+                        <p
+                            class="mt-2 text-xs text-gray-500 dark:text-gray-400"
+                        >
+                            Tip: From any platform page, you can later wire its
+                            “Start Unfollow Helper” button to send the generated
+                            list here automatically. For now, paste it.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <button
+                            type="button"
+                            id="loadBtn"
+                            class="inline-flex items-center justify-center gap-2 border border-zinc-800 dark:border-zinc-200 bg-black dark:bg-white text-white dark:text-black rounded-lg px-4 py-2 hover:bg-black/90 dark:hover:bg-white/90 text-sm font-medium transition-all"
+                        >
+                            Load List
+                        </button>
+
+                        <button
+                            type="button"
+                            id="openNextBtn"
+                            disabled
+                            class="inline-flex items-center justify-center gap-2 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-4 py-2 text-sm font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10"
+                        >
+                            Open Next
+                        </button>
+
+                        <button
+                            type="button"
+                            id="copyNextBtn"
+                            disabled
+                            class="inline-flex items-center justify-center gap-2 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-4 py-2 text-sm font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10"
+                        >
+                            Copy Next URL
+                        </button>
+
+                        <button
+                            type="button"
+                            id="openPrevBtn"
+                            disabled
+                            class="inline-flex items-center justify-center gap-2 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-4 py-2 text-sm font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10"
+                        >
+                            Open Previous
+                        </button>
+
+                        <button
+                            type="button"
+                            id="resetBtn"
+                            disabled
+                            class="inline-flex items-center justify-center gap-2 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-4 py-2 text-sm font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10"
+                        >
+                            Reset Progress
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div
+                            class="border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 bg-white/40 dark:bg-black/10"
+                        >
+                            <div
+                                class="text-xs text-gray-500 dark:text-gray-400"
+                            >
+                                Total
+                            </div>
+                            <div
+                                id="totalCount"
+                                class="text-lg font-semibold text-black dark:text-white"
+                            >
+                                0
+                            </div>
+                        </div>
+                        <div
+                            class="border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 bg-white/40 dark:bg-black/10"
+                        >
+                            <div
+                                class="text-xs text-gray-500 dark:text-gray-400"
+                            >
+                                Current index
+                            </div>
+                            <div
+                                id="currentIndex"
+                                class="text-lg font-semibold text-black dark:text-white"
+                            >
+                                -
+                            </div>
+                        </div>
+                        <div
+                            class="border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 bg-white/40 dark:bg-black/10"
+                        >
+                            <div
+                                class="text-xs text-gray-500 dark:text-gray-400"
+                            >
+                                Next URL
+                            </div>
+                            <div
+                                id="nextUrl"
+                                class="text-sm font-medium text-black dark:text-white break-all"
+                            >
+                                -
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl p-6"
+            >
+                <h2
+                    class="text-base font-semibold text-black dark:text-white mb-2"
+                >
+                    Queue preview
+                </h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    This is the exact order the helper will open. Each click
+                    opens exactly one tab, so popup blockers usually allow it.
+                </p>
+
+                <div
+                    class="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800"
+                >
+                    <table class="w-full text-sm">
+                        <thead
+                            class="text-xs uppercase bg-zinc-50 dark:bg-zinc-900 text-gray-700 dark:text-gray-400"
+                        >
+                            <tr>
+                                <th class="px-4 py-2 text-left font-medium w-16"
+                                    >#</th
+                                >
+                                <th class="px-4 py-2 text-left font-medium"
+                                    >URL</th
+                                >
+                                <th class="px-4 py-2 text-left font-medium w-28"
+                                    >Status</th
+                                >
+                            </tr>
+                        </thead>
+                        <tbody
+                            id="queueTable"
+                            class="divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-gray-950"
+                        >
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    Keyboard shortcuts: <strong>N</strong> = next, <strong
+                        >P</strong
+                    > = previous, <strong>R</strong> = reset.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <Footer />
+
+    <script>
+        type QueueItem = { url: string };
+
+        const STORAGE_KEY = "notfollow_helper_queue_v1";
+        const STORAGE_INDEX_KEY = "notfollow_helper_index_v1";
+
+        let queue: QueueItem[] = [];
+        let index = 0; // points to NEXT item to open
+
+        function $(id: string) {
+            return document.getElementById(id);
+        }
+
+        function setError(msg: string) {
+            const el = $("error-message");
+            if (el) el.textContent = msg || "";
+        }
+
+        function normalizeUrl(u: string): string {
+            if (!u) return "";
+            const trimmed = u.trim();
+            if (!trimmed) return "";
+            // allow people to paste usernames; try to make it a URL if it looks like instagram handle
+            if (
+                !/^https?:\/\//i.test(trimmed) &&
+                /^[A-Za-z0-9._]+$/.test(trimmed)
+            ) {
+                return `https://www.instagram.com/${trimmed}/`;
+            }
+            return trimmed;
+        }
+
+        function parseInput(raw: string): QueueItem[] {
+            const text = (raw || "").trim();
+            if (!text) return [];
+
+            // Try JSON first
+            if (text.startsWith("[") || text.startsWith("{")) {
+                try {
+                    const parsed = JSON.parse(text);
+
+                    // If it's an array:
+                    if (Array.isArray(parsed)) {
+                        const items: QueueItem[] = [];
+                        for (const it of parsed) {
+                            if (typeof it === "string") {
+                                const url = normalizeUrl(it);
+                                if (url) items.push({ url });
+                                continue;
+                            }
+                            if (it && typeof it === "object") {
+                                const candidate =
+                                    it.href ||
+                                    it.url ||
+                                    it.html_url ||
+                                    it.link ||
+                                    (it.string_list_data &&
+                                        it.string_list_data[0] &&
+                                        it.string_list_data[0].href) ||
+                                    "";
+                                const url = normalizeUrl(
+                                    String(candidate || ""),
+                                );
+                                if (url) items.push({ url });
+                            }
+                        }
+                        return dedupe(items);
+                    }
+
+                    // If it's an object, try common shapes
+                    if (parsed && typeof parsed === "object") {
+                        // Instagram could be { nonFollowers: [...] } etc.
+                        const candidateArrays = [
+                            (parsed as any).items,
+                            (parsed as any).users,
+                            (parsed as any).nonFollowers,
+                            (parsed as any).queue,
+                            (parsed as any).data,
+                        ].filter(Boolean);
+
+                        for (const arr of candidateArrays) {
+                            if (Array.isArray(arr)) {
+                                return dedupe(
+                                    arr
+                                        .map((x: any) =>
+                                            normalizeUrl(
+                                                String(
+                                                    x?.href ||
+                                                        x?.url ||
+                                                        x?.html_url ||
+                                                        x ||
+                                                        "",
+                                                ),
+                                            ),
+                                        )
+                                        .filter(Boolean)
+                                        .map((url: string) => ({ url })),
+                                );
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // fall through to newline parsing
+                }
+            }
+
+            // Newline-separated
+            const urls = text
+                .split(/\r?\n/)
+                .map((line) => normalizeUrl(line))
+                .filter(Boolean);
+
+            return dedupe(urls.map((url) => ({ url })));
+        }
+
+        function dedupe(items: QueueItem[]): QueueItem[] {
+            const seen = new Set<string>();
+            const out: QueueItem[] = [];
+            for (const it of items) {
+                const key = it.url;
+                if (!key || seen.has(key)) continue;
+                seen.add(key);
+                out.push(it);
+            }
+            return out;
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
+                localStorage.setItem(STORAGE_INDEX_KEY, String(index));
+            } catch {}
+        }
+
+        function loadState() {
+            try {
+                const q = localStorage.getItem(STORAGE_KEY);
+                const i = localStorage.getItem(STORAGE_INDEX_KEY);
+                if (q) {
+                    const parsed = JSON.parse(q);
+                    if (Array.isArray(parsed)) {
+                        queue = parsed
+                            .map((x: any) => ({
+                                url: normalizeUrl(String(x?.url || x || "")),
+                            }))
+                            .filter((x: any) => x.url);
+                    }
+                }
+                if (i && /^[0-9]+$/.test(i)) index = parseInt(i, 10);
+            } catch {}
+        }
+
+        function render() {
+            const totalCount = $("totalCount");
+            const currentIndex = $("currentIndex");
+            const nextUrl = $("nextUrl");
+            const openNextBtn = $("openNextBtn") as HTMLButtonElement | null;
+            const copyNextBtn = $("copyNextBtn") as HTMLButtonElement | null;
+            const openPrevBtn = $("openPrevBtn") as HTMLButtonElement | null;
+            const resetBtn = $("resetBtn") as HTMLButtonElement | null;
+
+            const total = queue.length;
+
+            if (totalCount) totalCount.textContent = String(total);
+            if (currentIndex)
+                currentIndex.textContent = total
+                    ? `${Math.min(index + 1, total)} / ${total}`
+                    : "-";
+            if (nextUrl)
+                nextUrl.textContent =
+                    total && index < total ? queue[index].url : "-";
+
+            const canOpenNext = total > 0 && index < total;
+            const canOpenPrev = total > 0 && index > 0;
+            const canReset = total > 0;
+
+            if (openNextBtn) openNextBtn.disabled = !canOpenNext;
+            if (copyNextBtn) copyNextBtn.disabled = !canOpenNext;
+            if (openPrevBtn) openPrevBtn.disabled = !canOpenPrev;
+            if (resetBtn) resetBtn.disabled = !canReset;
+
+            const tbody = $("queueTable");
+            if (!tbody) return;
+
+            tbody.innerHTML = "";
+            queue.forEach((it, i) => {
+                const tr = document.createElement("tr");
+                const status =
+                    i < index ? "opened" : i === index ? "next" : "pending";
+
+                tr.className =
+                    "hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors";
+
+                tr.innerHTML = `
+                    <td class="px-4 py-2 text-gray-900 dark:text-gray-100">${i + 1}</td>
+                    <td class="px-4 py-2">
+                        <a href="${it.url}" target="_blank" rel="noopener noreferrer" class="text-sm text-black dark:text-white hover:underline break-all">
+                            ${it.url}
+                        </a>
+                    </td>
+                    <td class="px-4 py-2">
+                        <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                            status === "opened"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+                                : status === "next"
+                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
+                                  : "bg-zinc-100 text-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-200"
+                        }">
+                            ${status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setQueue(items: QueueItem[]) {
+            queue = items;
+            index = 0;
+            saveState();
+            render();
+        }
+
+        function openNext() {
+            setError("");
+            if (!queue.length) return;
+
+            if (index >= queue.length) {
+                setError("Queue is finished.");
+                return;
+            }
+
+            const url = queue[index].url;
+
+            // Do not gate progress on popup success.
+            // If the browser blocks popups by default, the user still wants to advance.
+            try {
+                window.open(url, "_blank", "noopener,noreferrer");
+            } catch {
+                // ignore
+            }
+
+            index++;
+            saveState();
+            render();
+        }
+
+        function openPrev() {
+            setError("");
+            if (!queue.length) return;
+            index = Math.max(0, index - 1);
+            saveState();
+            render();
+        }
+
+        function resetProgress() {
+            setError("");
+            if (!queue.length) return;
+            index = 0;
+            saveState();
+            render();
+        }
+
+        async function copyNextUrl() {
+            setError("");
+            if (!queue.length) return;
+
+            if (index >= queue.length) {
+                setError("Queue is finished.");
+                return;
+            }
+
+            const url = queue[index].url;
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(url);
+                } else {
+                    // Fallback for older browsers
+                    const ta = document.createElement("textarea");
+                    ta.value = url;
+                    ta.setAttribute("readonly", "true");
+                    ta.style.position = "fixed";
+                    ta.style.left = "-9999px";
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(ta);
+                }
+            } catch {
+                // If copy fails, at least show the URL prominently (already in UI)
+                setError(
+                    "Copy failed. You can manually select the Next URL field and copy it.",
+                );
+                return;
+            }
+
+            // Consider it 'done' and advance, since the user can paste it manually.
+            index++;
+            saveState();
+            render();
+        }
+
+        function init() {
+            loadState();
+            render();
+
+            const loadBtn = $("loadBtn");
+            const openNextBtn = $("openNextBtn");
+            const copyNextBtn = $("copyNextBtn");
+            const openPrevBtn = $("openPrevBtn");
+            const resetBtn = $("resetBtn");
+
+            loadBtn?.addEventListener("click", () => {
+                setError("");
+                const raw =
+                    ($("helperData") as HTMLTextAreaElement | null)?.value ||
+                    "";
+                const items = parseInput(raw);
+                if (!items.length) {
+                    setError(
+                        "No URLs found. Paste JSON array / objects or newline-separated URLs.",
+                    );
+                    return;
+                }
+                setQueue(items);
+            });
+
+            openNextBtn?.addEventListener("click", openNext);
+            copyNextBtn?.addEventListener("click", copyNextUrl);
+            openPrevBtn?.addEventListener("click", openPrev);
+            resetBtn?.addEventListener("click", resetProgress);
+
+            document.addEventListener("keydown", (e) => {
+                const tag = (e.target as any)?.tagName?.toLowerCase?.() || "";
+                const isTyping =
+                    tag === "input" ||
+                    tag === "textarea" ||
+                    (e.target as any)?.isContentEditable;
+                if (isTyping) return;
+
+                if (e.key === "n" || e.key === "N") openNext();
+                if (e.key === "p" || e.key === "P") openPrev();
+                if (e.key === "r" || e.key === "R") resetProgress();
+            });
+        }
+
+        init();
+    </script>
+</Layout>

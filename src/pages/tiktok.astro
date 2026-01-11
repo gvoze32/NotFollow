@@ -144,8 +144,8 @@ import Footer from "../components/Footer.astro";
                             <div id="bulk-actions" class="hidden">
                                 <button
                                     type="button"
-                                    onclick="openAll()"
-                                    class="inline-flex items-center gap-1.5 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-3 py-1.5 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-xs font-medium text-black dark:text-white transition-all"
+                                    onclick="startUnfollowHelper()"
+                                    class="inline-flex items-center gap-1.5 border border-zinc-800 dark:border-zinc-200 bg-black dark:bg-white text-white dark:text-black rounded-lg px-3 py-1.5 hover:bg-black/90 dark:hover:bg-white/90 text-xs font-medium transition-all"
                                 >
                                     <svg
                                         class="w-3.5 h-3.5"
@@ -160,7 +160,7 @@ import Footer from "../components/Footer.astro";
                                             d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                                         ></path>
                                     </svg>
-                                    Open All
+                                    Start Unfollow Helper
                                 </button>
                             </div>
                         </div>
@@ -537,34 +537,43 @@ import Footer from "../components/Footer.astro";
             }
         };
 
-        (window as any).openAll = function () {
-            if (
-                !confirm(
-                    `This will open ${currentNonFollowers.length} tabs. Continue?`,
-                )
-            ) {
-                return;
+        (window as any).startUnfollowHelper = function () {
+            if (!currentNonFollowers.length) return;
+
+            const queue = currentNonFollowers.map((u) => ({ url: u.href }));
+
+            // Open ONE helper tab (anti popup-block)
+            const helperUrl = "/helper/launcher";
+            const helperWin = window.open(
+                helperUrl,
+                "_blank",
+                "noopener,noreferrer",
+            );
+
+            // Persist data so the helper can pick it up (same-origin)
+            try {
+                localStorage.setItem(
+                    "notfollow_helper_queue_v1",
+                    JSON.stringify(queue),
+                );
+                localStorage.setItem("notfollow_helper_index_v1", "0");
+            } catch (e) {
+                // ignore
             }
-
-            currentNonFollowers.forEach((user, index) => {
-                setTimeout(() => {
-                    window.open(user.href, "_blank");
-
-                    // Mark checkbox as checked
-                    const checkbox = document.getElementById(
-                        `checkbox-${index}`,
-                    ) as HTMLInputElement;
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        (window as any).toggleChecked(checkbox, index);
-                    }
-                }, index * 100); // Small delay to prevent browser blocking
-            });
 
             // Update message
             const totalEl = document.getElementById("total-to-unfollow");
             if (totalEl) {
-                totalEl.textContent = `All ${currentNonFollowers.length} profiles opened! 🎉`;
+                totalEl.textContent = `Helper started with ${queue.length} profiles. Use "Open Next" in the helper tab.`;
+            }
+
+            // If tab got blocked, instruct user
+            if (!helperWin) {
+                const errorEl = document.getElementById("error-message");
+                if (errorEl) {
+                    errorEl.textContent =
+                        "Popup blocked. Allow popups for this site to open the helper tab.";
+                }
             }
         };
 
