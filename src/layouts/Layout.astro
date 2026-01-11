@@ -1,0 +1,117 @@
+---
+import "../styles/global.css";
+
+interface Props {
+    title: string;
+    description?: string;
+}
+
+const {
+    title,
+    description = "A web application to help you identify people who don't follow you back on social media.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content={description} />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="https://syafa.tech/fav.png"
+        />
+
+        <!-- Theme initialization - must run before body renders to prevent FOUC -->
+        <script is:inline>
+            // Initialize theme on page load - default to dark mode
+            if (localStorage.getItem("color-theme") === "light") {
+                document.documentElement.classList.remove("dark");
+            } else {
+                document.documentElement.classList.add("dark");
+            }
+        </script>
+
+        <style is:global>
+            html,
+            body {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .line-through {
+                text-decoration: line-through;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .animate-fade-in-up {
+                animation: fadeInUp 0.6s ease-out forwards;
+            }
+        </style>
+    </head>
+    <body
+        class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased flex flex-col"
+    >
+        <slot />
+
+        <script is:inline>
+            // Theme toggle functionality
+            var themeToggleDarkIcon = document.getElementById(
+                "theme-toggle-dark-icon",
+            );
+            var themeToggleLightIcon = document.getElementById(
+                "theme-toggle-light-icon",
+            );
+
+            // Set initial icon state - default to dark mode
+            if (localStorage.getItem("color-theme") === "light") {
+                themeToggleDarkIcon.classList.remove("hidden");
+            } else {
+                themeToggleLightIcon.classList.remove("hidden");
+            }
+
+            var themeToggleBtn = document.getElementById("theme-toggle");
+
+            themeToggleBtn.addEventListener("click", function () {
+                // Toggle icons
+                themeToggleDarkIcon.classList.toggle("hidden");
+                themeToggleLightIcon.classList.toggle("hidden");
+
+                // If set via localStorage previously
+                if (localStorage.getItem("color-theme")) {
+                    if (localStorage.getItem("color-theme") === "light") {
+                        document.documentElement.classList.add("dark");
+                        localStorage.setItem("color-theme", "dark");
+                    } else {
+                        document.documentElement.classList.remove("dark");
+                        localStorage.setItem("color-theme", "light");
+                    }
+                    // If NOT set via localStorage previously
+                } else {
+                    if (document.documentElement.classList.contains("dark")) {
+                        document.documentElement.classList.remove("dark");
+                        localStorage.setItem("color-theme", "light");
+                    } else {
+                        document.documentElement.classList.add("dark");
+                        localStorage.setItem("color-theme", "dark");
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

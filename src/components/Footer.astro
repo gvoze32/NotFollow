@@ -1,0 +1,99 @@
+---
+// Footer component with minimal ds1/ds2 style and copy-to-clipboard
+---
+
+<footer class="py-12 px-4 bg-white dark:bg-gray-950 border-t border-zinc-200 dark:border-zinc-800">
+  <div class="max-w-2xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="text-sm text-gray-600 dark:text-gray-400 text-center md:text-left">
+        <span>© 2025 </span>
+        <a
+          href="https://github.com/gvoze32"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-medium text-black dark:text-white hover:underline"
+        >
+          gvoze32
+        </a>
+      </div>
+
+      <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+        <svg
+          class="w-4 h-4 text-[#626890]"
+          aria-hidden="true"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 320 512"
+        >
+          <path
+            d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"
+          ></path>
+        </svg>
+        <span class="hidden sm:inline">Support: </span>
+        <button
+          type="button"
+          onclick="copyEthAddress()"
+          class="text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-900 rounded font-mono hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+          title="Click to copy full address"
+        >
+          0x98441...6353CC
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div
+    id="copy-toast"
+    class="fixed bottom-4 right-4 z-50 hidden border border-zinc-800 dark:border-zinc-200 bg-white dark:bg-gray-950 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg"
+  >
+    <div class="flex items-center gap-2 text-sm">
+      <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <span class="text-black dark:text-white font-medium">Address copied!</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const FULL_ETH_ADDRESS = '0x98441fC52b473d2E8B246315F96701484e6353CC';
+
+  (window as any).copyEthAddress = function() {
+    // Copy to clipboard
+    navigator.clipboard.writeText(FULL_ETH_ADDRESS).then(() => {
+      // Show toast
+      const toast = document.getElementById('copy-toast');
+      if (toast) {
+        toast.classList.remove('hidden');
+
+        // Hide after 2 seconds
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 2000);
+      }
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = FULL_ETH_ADDRESS;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        const toast = document.getElementById('copy-toast');
+        if (toast) {
+          toast.classList.remove('hidden');
+          setTimeout(() => {
+            toast.classList.add('hidden');
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Fallback copy failed:', err);
+      }
+      document.body.removeChild(textArea);
+    });
+  };
+</script>

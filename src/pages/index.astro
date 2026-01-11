@@ -1,0 +1,453 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="NotFollow - Discover Who's Not Following You Back">
+    <Navbar />
+
+    <!-- Hero Section -->
+    <section
+        class="relative min-h-[80vh] flex items-center justify-center px-4 py-20 overflow-hidden bg-white dark:bg-gray-950"
+    >
+        <div class="absolute inset-0 z-0 opacity-5 dark:opacity-10">
+            <div
+                class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]"
+            >
+            </div>
+        </div>
+
+        <div class="max-w-2xl mx-auto text-center z-10">
+            <h1
+                class="text-4xl md:text-5xl font-bold mb-3 text-black dark:text-white tracking-tight"
+            >
+                NotFollow
+            </h1>
+
+            <h2
+                class="text-lg md:text-xl text-gray-600 dark:text-gray-400 font-light mb-6"
+            >
+                Discover Who's Not Following You Back
+            </h2>
+
+            <p
+                class="text-base text-gray-600 dark:text-gray-400 mb-8 max-w-xl mx-auto"
+            >
+                Track who doesn't follow you back on your favorite social media
+                platforms. Easy, fast, and secure - all processing happens in
+                your browser.
+            </p>
+
+            <div
+                class="flex flex-col sm:flex-row gap-3 justify-center items-center"
+            >
+                <a
+                    href="/instagram"
+                    class="inline-flex items-center gap-2 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-6 py-3 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+                >
+                    <span>Get Started</span>
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            d="M5 12H19M19 12L12 5M19 12L12 19"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"></path>
+                    </svg>
+                </a>
+                <a
+                    href="#platforms"
+                    class="inline-flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-6 py-3 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+                >
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-12 px-4 bg-white dark:bg-gray-950">
+        <div class="max-w-2xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div
+                        class="text-3xl md:text-4xl font-bold text-black dark:text-white mb-2"
+                    >
+                        100%
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Private
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div
+                        class="text-3xl md:text-4xl font-bold text-black dark:text-white mb-2"
+                    >
+                        Fast
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Processing
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div
+                        class="text-3xl md:text-4xl font-bold text-black dark:text-white mb-2"
+                    >
+                        Free
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        No Cost
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div
+                        class="text-3xl md:text-4xl font-bold text-black dark:text-white mb-2"
+                    >
+                        Open
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Source
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platforms Section -->
+    <section id="platforms" class="py-12 px-4 bg-white dark:bg-gray-950">
+        <div class="max-w-2xl mx-auto">
+            <div class="mb-12">
+                <h2
+                    class="text-2xl md:text-3xl font-bold text-black dark:text-white mb-3"
+                >
+                    Supported Platforms
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Check who doesn't follow you back across multiple social
+                    networks
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <a
+                    href="/instagram"
+                    class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden p-6 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/5 transition-all"
+                >
+                    <div class="mb-4">
+                        <svg
+                            class="w-8 h-8 text-black dark:text-white"
+                            fill="currentColor"
+                            viewBox="0 0 50 50"
+                        >
+                            <path
+                                d="M 16 3 C 8.8324839 3 3 8.8324839 3 16 L 3 34 C 3 41.167516 8.8324839 47 16 47 L 34 47 C 41.167516 47 47 41.167516 47 34 L 47 16 C 47 8.8324839 41.167516 3 34 3 L 16 3 z M 16 5 L 34 5 C 40.086484 5 45 9.9135161 45 16 L 45 34 C 45 40.086484 40.086484 45 34 45 L 16 45 C 9.9135161 45 5 40.086484 5 34 L 5 16 C 5 9.9135161 9.9135161 5 16 5 z M 37 11 A 2 2 0 0 0 35 13 A 2 2 0 0 0 37 15 A 2 2 0 0 0 39 13 A 2 2 0 0 0 37 11 z M 25 14 C 18.936712 14 14 18.936712 14 25 C 14 31.063288 18.936712 36 25 36 C 31.063288 36 36 31.063288 36 25 C 36 18.936712 31.063288 14 25 14 z M 25 16 C 29.982407 16 34 20.017593 34 25 C 34 29.982407 29.982407 34 25 34 C 20.017593 34 16 29.982407 16 25 C 16 20.017593 20.017593 16 25 16 z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3
+                        class="text-lg font-semibold text-black dark:text-white mb-2"
+                    >
+                        Instagram
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Find who doesn't follow you back on Instagram with
+                        detailed analysis
+                    </p>
+                </a>
+
+                <a
+                    href="/tiktok"
+                    class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden p-6 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/5 transition-all"
+                >
+                    <div class="mb-4">
+                        <svg
+                            class="w-8 h-8 text-black dark:text-white"
+                            fill="currentColor"
+                            viewBox="0 0 50 50"
+                        >
+                            <path
+                                d="M 9 4 C 6.2495759 4 4 6.2495759 4 9 L 4 41 C 4 43.750424 6.2495759 46 9 46 L 41 46 C 43.750424 46 46 43.750424 46 41 L 46 9 C 46 6.2495759 43.750424 4 41 4 L 9 4 z M 9 6 L 41 6 C 42.671576 6 44 7.3284241 44 9 L 44 41 C 44 42.671576 42.671576 44 41 44 L 9 44 C 7.3284241 44 6 42.671576 6 41 L 6 9 C 6 7.3284241 7.3284241 6 9 6 z M 26.042969 10 A 1.0001 1.0001 0 0 0 25.042969 10.998047 C 25.042969 10.998047 25.031984 15.873262 25.021484 20.759766 C 25.016184 23.203017 25.009799 25.64879 25.005859 27.490234 C 25.001922 29.331679 25 30.496833 25 30.59375 C 25 32.409009 23.351421 33.892578 21.472656 33.892578 C 19.608867 33.892578 18.121094 32.402853 18.121094 30.539062 C 18.121094 28.675273 19.608867 27.1875 21.472656 27.1875 C 21.535796 27.1875 21.663054 27.208245 21.880859 27.234375 A 1.0001 1.0001 0 0 0 23 26.240234 L 23 22.039062 A 1.0001 1.0001 0 0 0 22.0625 21.041016 C 21.906673 21.031216 21.710581 21.011719 21.472656 21.011719 C 16.223131 21.011719 11.945313 25.289537 11.945312 30.539062 C 11.945312 35.788589 16.223131 40.066406 21.472656 40.066406 C 26.72204 40.066409 31 35.788588 31 30.539062 L 31 21.490234 C 32.454611 22.653646 34.267517 23.390625 36.269531 23.390625 C 36.542588 23.390625 36.802305 23.374442 37.050781 23.351562 A 1.0001 1.0001 0 0 0 37.958984 22.355469 L 37.958984 17.685547 A 1.0001 1.0001 0 0 0 37.03125 16.6875 C 33.886609 16.461891 31.379838 14.012216 31.052734 10.896484 A 1.0001 1.0001 0 0 0 30.058594 10 L 26.042969 10 z M 27.041016 12 L 29.322266 12 C 30.049047 15.2987 32.626734 17.814404 35.958984 18.445312 L 35.958984 21.310547 C 33.820114 21.201935 31.941489 20.134948 30.835938 18.453125 A 1.0001 1.0001 0 0 0 29 19.003906 L 29 30.539062 C 29 34.707538 25.641273 38.066406 21.472656 38.066406 C 17.304181 38.066406 13.945312 34.707538 13.945312 30.539062 C 13.945312 26.538539 17.066083 23.363182 21 23.107422 L 21 25.283203 C 18.286416 25.535721 16.121094 27.762246 16.121094 30.539062 C 16.121094 33.483274 18.528445 35.892578 21.472656 35.892578 C 24.401892 35.892578 27 33.586491 27 30.59375 C 27 30.64267 27.001859 29.335571 27.005859 27.494141 C 27.009759 25.65271 27.016224 23.20692 27.021484 20.763672 C 27.030884 16.376775 27.039186 12.849206 27.041016 12 z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3
+                        class="text-lg font-semibold text-black dark:text-white mb-2"
+                    >
+                        TikTok
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Analyze your TikTok followers and following
+                    </p>
+                </a>
+
+                <a
+                    href="/github"
+                    class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden p-6 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/5 transition-all"
+                >
+                    <div class="mb-4">
+                        <svg
+                            class="w-8 h-8 text-black dark:text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M16 22.027v-2.87a3.37 3.37 0 0 0-.94-2.621c3.14-.352 6.44-1.54 6.44-6.96a5.445 5.445 0 0 0-1.508-3.773 5.07 5.07 0 0 0-.091-3.773s-1.18-.379-3.874 1.44a13.241 13.241 0 0 0-7.056 0C5.867 3.425 4.687 3.803 4.687 3.803a5.07 5.07 0 0 0-.091 3.773A5.445 5.445 0 0 0 3.088 9.576c0 5.399 3.26 6.607 6.36 6.972a3.37 3.37 0 0 0-.94 2.571v2.908"
+                            ></path>
+                            <path d="M9 20.027c-3 .973-5-1.5-5-1.5"></path>
+                        </svg>
+                    </div>
+                    <h3
+                        class="text-lg font-semibold text-black dark:text-white mb-2"
+                    >
+                        GitHub
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Track your GitHub followers and following
+                    </p>
+                </a>
+
+                <a
+                    href="/x"
+                    class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden p-6 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/5 transition-all"
+                >
+                    <div class="mb-4">
+                        <svg
+                            class="w-8 h-8 text-black dark:text-white"
+                            fill="currentColor"
+                            viewBox="0 0 50 50"
+                        >
+                            <path
+                                d="M 5.9199219 6 L 20.582031 27.375 L 6.2304688 44 L 9.4101562 44 L 21.986328 29.421875 L 31.986328 44 L 44 44 L 28.681641 21.669922 L 42.199219 6 L 39.029297 6 L 27.275391 19.617188 L 17.933594 6 L 5.9199219 6 z M 9.7167969 8 L 16.880859 8 L 40.203125 42 L 33.039062 42 L 9.7167969 8 z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3
+                        class="text-lg font-semibold text-black dark:text-white mb-2"
+                    >
+                        X (Twitter)
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Check who doesn't follow you back on X
+                    </p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-12 px-4 bg-white dark:bg-gray-950">
+        <div class="max-w-2xl mx-auto">
+            <div class="mb-12">
+                <h2
+                    class="text-2xl md:text-3xl font-bold text-black dark:text-white mb-3"
+                >
+                    Why NotFollow?
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Simple, secure, and effective follower management
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-start gap-4">
+                    <div
+                        class="shrink-0 w-10 h-10 rounded-lg bg-black dark:bg-white flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-5 h-5 text-white dark:text-black"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3
+                            class="text-lg font-semibold text-black dark:text-white mb-1"
+                        >
+                            100% Private & Secure
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            All processing happens locally in your browser. We
+                            never store or access your data.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div
+                        class="shrink-0 w-10 h-10 rounded-lg bg-black dark:bg-white flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-5 h-5 text-white dark:text-black"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3
+                            class="text-lg font-semibold text-black dark:text-white mb-1"
+                        >
+                            Lightning Fast
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Instant analysis of your follower data with
+                            optimized processing algorithms.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div
+                        class="shrink-0 w-10 h-10 rounded-lg bg-black dark:bg-white flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-5 h-5 text-white dark:text-black"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3
+                            class="text-lg font-semibold text-black dark:text-white mb-1"
+                        >
+                            Easy to Use
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Simple interface - just upload your data files and
+                            get instant results.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div
+                        class="shrink-0 w-10 h-10 rounded-lg bg-black dark:bg-white flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-5 h-5 text-white dark:text-black"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                            ></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3
+                            class="text-lg font-semibold text-black dark:text-white mb-1"
+                        >
+                            Open Source
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Transparent code you can audit and contribute to on
+                            GitHub.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-12 px-4 bg-white dark:bg-gray-950">
+        <div class="max-w-2xl mx-auto text-center">
+            <h2
+                class="text-2xl md:text-3xl font-bold text-black dark:text-white mb-3"
+            >
+                Ready to Get Started?
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Start analyzing your social media followers in seconds
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                    href="/instagram"
+                    class="inline-flex items-center justify-center gap-2 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-6 py-3 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+                >
+                    <span>Try Instagram Checker</span>
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            d="M5 12H19M19 12L12 5M19 12L12 19"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"></path>
+                    </svg>
+                </a>
+                <a
+                    href="https://github.com/gvoze32/NotFollow"
+                    target="_blank"
+                    class="inline-flex items-center justify-center gap-2 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-6 py-3 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+                >
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <Footer />
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+            anchor.addEventListener("click", function (e) {
+                e.preventDefault();
+                const href = this.getAttribute("href");
+                if (href) {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</Layout>

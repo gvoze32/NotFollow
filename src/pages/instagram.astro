@@ -1,0 +1,873 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Instagram NotFollow - Check Who Doesn't Follow You Back">
+    <Navbar />
+
+    <!-- Hero Section -->
+    <section
+        class="relative pt-24 pb-6 px-4 overflow-hidden bg-white dark:bg-gray-950"
+    >
+        <div class="absolute inset-0 z-0 opacity-5 dark:opacity-10">
+            <div
+                class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]"
+            >
+            </div>
+        </div>
+
+        <div class="max-w-2xl mx-auto text-center z-10 relative">
+            <h1
+                class="text-2xl md:text-3xl font-bold mb-2 text-black dark:text-white tracking-tight"
+            >
+                Instagram NotFollow
+            </h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Upload your Instagram data files to discover who doesn't follow
+                you back
+            </p>
+        </div>
+    </section>
+
+    <!-- Upload Section -->
+    <section class="pb-8 px-4 bg-white dark:bg-gray-950">
+        <div class="max-w-2xl mx-auto">
+            <div
+                id="error-message"
+                class="mb-4 text-sm text-red-600 dark:text-red-400"
+            >
+            </div>
+
+            <div
+                class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl p-6 mb-4"
+            >
+                <div class="mb-4">
+                    <label
+                        for="followersFile"
+                        class="block mb-2 text-sm font-medium text-black dark:text-white"
+                    >
+                        Followers Files
+                    </label>
+                    <input
+                        class="block w-full text-sm text-gray-900 dark:text-gray-400 border border-zinc-300 dark:border-zinc-700 rounded-lg cursor-pointer bg-white dark:bg-gray-900 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black dark:file:bg-white file:text-white dark:file:text-black hover:file:bg-black/90 dark:hover:file:bg-white/90"
+                        id="followersFile"
+                        accept=".json"
+                        type="file"
+                        multiple
+                    />
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Select one or more followers_*.json files
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <label
+                        for="followingFile"
+                        class="block mb-2 text-sm font-medium text-black dark:text-white"
+                    >
+                        Following File
+                    </label>
+                    <input
+                        class="block w-full text-sm text-gray-900 dark:text-gray-400 border border-zinc-300 dark:border-zinc-700 rounded-lg cursor-pointer bg-white dark:bg-gray-900 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black dark:file:bg-white file:text-white dark:file:text-black hover:file:bg-black/90 dark:hover:file:bg-white/90"
+                        id="followingFile"
+                        accept=".json"
+                        type="file"
+                        multiple
+                    />
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Select your following.json file
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    <button
+                        type="button"
+                        onclick="processFiles()"
+                        class="inline-flex items-center gap-2 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"></path>
+                        </svg>
+                        Check Non-Followers
+                    </button>
+                    <button
+                        type="button"
+                        data-modal-target="howToModal"
+                        data-modal-toggle="howToModal"
+                        class="inline-flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            ></path>
+                        </svg>
+                        How to Get Files
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="pb-8 px-4 bg-white dark:bg-gray-950">
+        <div class="max-w-2xl mx-auto">
+            <div
+                class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden"
+            >
+                <div class="p-4 border-b border-zinc-200 dark:border-zinc-800">
+                    <div
+                        class="flex items-center justify-between flex-wrap gap-3 mb-2"
+                    >
+                        <h2
+                            class="text-lg font-semibold text-black dark:text-white"
+                        >
+                            People who don't follow you back
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <div id="items-per-page-selector" class="hidden">
+                                <label
+                                    for="itemsPerPage"
+                                    class="text-xs text-gray-600 dark:text-gray-400 mr-2"
+                                    >Items per page:</label
+                                >
+                                <select
+                                    id="itemsPerPage"
+                                    onchange="changeItemsPerPage()"
+                                    class="text-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg px-2 py-1 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200 appearance-none cursor-pointer"
+                                    style="padding-right: 1.5rem; background-image: none;"
+                                >
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            <div id="bulk-actions" class="hidden">
+                                <button
+                                    type="button"
+                                    onclick="openAll()"
+                                    class="inline-flex items-center gap-1.5 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-3 py-1.5 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-xs font-medium text-black dark:text-white transition-all"
+                                >
+                                    <svg
+                                        class="w-3.5 h-3.5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                        ></path>
+                                    </svg>
+                                    Open All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p
+                        id="total-to-unfollow"
+                        class="text-sm text-gray-600 dark:text-gray-400"
+                    >
+                        Upload files to see results
+                    </p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead
+                            class="text-xs uppercase bg-zinc-50 dark:bg-zinc-900 text-gray-700 dark:text-gray-400"
+                        >
+                            <tr>
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left font-medium"
+                                    >No.</th
+                                >
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left font-medium"
+                                    >Username</th
+                                >
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left font-medium"
+                                    >Profile</th
+                                >
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left font-medium"
+                                    >Mark</th
+                                >
+                            </tr>
+                        </thead>
+                        <tbody
+                            id="resultList"
+                            class="divide-y divide-zinc-200 dark:divide-zinc-800"
+                        >
+                            <!-- Results will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div
+                    id="pagination-controls"
+                    class="hidden p-4 border-t border-zinc-200 dark:border-zinc-800"
+                >
+                    <div
+                        class="flex items-center justify-between flex-wrap gap-3"
+                    >
+                        <div
+                            class="text-xs text-gray-600 dark:text-gray-400"
+                            id="pagination-info"
+                        >
+                            Showing 1 to 25 of 100
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button
+                                type="button"
+                                id="prev-page"
+                                onclick="previousPage()"
+                                class="inline-flex items-center gap-1 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-3 py-1.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-xs font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled
+                            >
+                                <svg
+                                    class="w-3.5 h-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                                Previous
+                            </button>
+                            <div
+                                class="flex items-center gap-1"
+                                id="page-numbers"
+                            >
+                                <!-- Page numbers will be inserted here -->
+                            </div>
+                            <button
+                                type="button"
+                                id="next-page"
+                                onclick="nextPage()"
+                                class="inline-flex items-center gap-1 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-3 py-1.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-xs font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Next
+                                <svg
+                                    class="w-3.5 h-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <Footer />
+
+    <!-- Modal: How to get JSON files -->
+    <div
+        id="howToModal"
+        tabindex="-1"
+        aria-hidden="true"
+        class="fixed inset-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto bg-black/50 backdrop-blur-sm"
+    >
+        <div class="relative w-full max-w-2xl max-h-full mx-auto my-8">
+            <div
+                class="relative border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-gray-950 rounded-xl shadow-lg"
+            >
+                <div
+                    class="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800"
+                >
+                    <h3
+                        class="text-xl font-semibold text-black dark:text-white"
+                    >
+                        How to Get JSON Files
+                    </h3>
+                    <button
+                        type="button"
+                        class="text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm p-1.5 ml-auto inline-flex items-center transition-colors"
+                        data-modal-hide="howToModal"
+                    >
+                        <svg
+                            class="w-5 h-5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div
+                    class="p-6 space-y-4 text-sm text-gray-600 dark:text-gray-400"
+                >
+                    <p class="font-medium text-black dark:text-white">
+                        Follow these steps to download your Instagram data:
+                    </p>
+                    <ol
+                        class="list-decimal list-inside space-y-2 leading-relaxed"
+                    >
+                        <li>
+                            Go to your Instagram profile and tap the menu icon
+                            (☰)
+                        </li>
+                        <li>
+                            Navigate to <strong>Accounts Center</strong> → <strong
+                                >Your information and permissions</strong>
+                        </li>
+                        <li>
+                            Select <strong>Download your information</strong> → <strong
+                                >Download or transfer information</strong>
+                        </li>
+                        <li>
+                            Choose the profiles you want to download data from
+                        </li>
+                        <li>
+                            Click <strong>Next</strong>, then select <strong
+                                >Some of your information</strong>
+                        </li>
+                        <li>
+                            Choose <strong>Followers and Following</strong> and click
+                            <strong>Next</strong>
+                        </li>
+                        <li>Select <strong>Download to device</strong></li>
+                        <li>
+                            Configure file options:
+                            <ul
+                                class="list-disc list-inside pl-5 mt-1 space-y-1"
+                            >
+                                <li>Date range: <strong>All time</strong></li>
+                                <li>Format: <strong>JSON</strong></li>
+                                <li>Media quality: <strong>Low</strong></li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Create files</strong></li>
+                        <li>
+                            Wait for the email notification (can take a few
+                            hours)
+                        </li>
+                        <li>
+                            Download the ZIP file and extract <code
+                                class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-900 rounded text-xs"
+                                >followers_*.json</code
+                            > and <code
+                                class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-900 rounded text-xs"
+                                >following.json</code>
+                        </li>
+                    </ol>
+                </div>
+                <div
+                    class="flex items-center justify-end p-6 border-t border-zinc-200 dark:border-zinc-800"
+                >
+                    <button
+                        data-modal-hide="howToModal"
+                        type="button"
+                        class="inline-flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let followersData: any[] = [];
+        let followingData: any[] = [];
+
+        // Modal toggle functionality
+        document.addEventListener("DOMContentLoaded", () => {
+            const modalToggles = document.querySelectorAll(
+                "[data-modal-toggle]",
+            );
+            const modalHides = document.querySelectorAll("[data-modal-hide]");
+
+            modalToggles.forEach((toggle) => {
+                toggle.addEventListener("click", () => {
+                    const modalId = toggle.getAttribute("data-modal-target");
+                    const modal = document.getElementById(modalId!);
+                    if (modal) {
+                        modal.classList.toggle("hidden");
+                    }
+                });
+            });
+
+            modalHides.forEach((hide) => {
+                hide.addEventListener("click", () => {
+                    const modalId = hide.getAttribute("data-modal-hide");
+                    const modal = document.getElementById(modalId!);
+                    if (modal) {
+                        modal.classList.add("hidden");
+                    }
+                });
+            });
+
+            // Close modal on background click
+            document.querySelectorAll('[id$="Modal"]').forEach((modal) => {
+                modal.addEventListener("click", (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add("hidden");
+                    }
+                });
+            });
+        });
+
+        document
+            .getElementById("followersFile")
+            ?.addEventListener("change", function (event) {
+                const files = (event.target as HTMLInputElement).files;
+                if (!files) return;
+
+                for (const file of Array.from(files)) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        try {
+                            const parsedData = JSON.parse(
+                                e.target?.result as string,
+                            );
+                            followersData.push(parsedData);
+                            console.log("Followers Data:", followersData);
+                            const errorEl =
+                                document.getElementById("error-message");
+                            if (errorEl) errorEl.textContent = "";
+                        } catch (error) {
+                            console.error(
+                                "Error parsing followers file:",
+                                error,
+                            );
+                            const errorEl =
+                                document.getElementById("error-message");
+                            if (errorEl) {
+                                errorEl.textContent =
+                                    "Error parsing followers file. Please make sure it is in the correct format.";
+                            }
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+        document
+            .getElementById("followingFile")
+            ?.addEventListener("change", function (event) {
+                const files = (event.target as HTMLInputElement).files;
+                if (!files) return;
+
+                for (const file of Array.from(files)) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        try {
+                            const parsedData = JSON.parse(
+                                e.target?.result as string,
+                            );
+                            followingData.push(parsedData);
+                            console.log("Following Data:", followingData);
+                            const errorEl =
+                                document.getElementById("error-message");
+                            if (errorEl) errorEl.textContent = "";
+                        } catch (error) {
+                            console.error(
+                                "Error parsing following file:",
+                                error,
+                            );
+                            const errorEl =
+                                document.getElementById("error-message");
+                            if (errorEl) {
+                                errorEl.textContent =
+                                    "Error parsing following file. Please make sure it is in the correct format.";
+                            }
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+        function extractUsernameFromInstagramHref(href: string): string {
+            if (!href || typeof href !== "string") return "";
+            try {
+                const url = new URL(href);
+                const parts = url.pathname.split("/").filter(Boolean);
+                if (!parts.length) return "";
+                if (parts[0] === "_u" && parts[1]) return parts[1];
+                return parts[0];
+            } catch {
+                const parts = href.split("/").filter(Boolean);
+                const uIndex = parts.indexOf("_u");
+                if (uIndex !== -1 && parts[uIndex + 1])
+                    return parts[uIndex + 1];
+                return parts[parts.length - 1] || "";
+            }
+        }
+
+        let currentNonFollowers: Array<{ username: string; href: string }> = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+
+        (window as any).processFiles = function () {
+            if (!followersData.length || !followingData.length) {
+                const errorEl = document.getElementById("error-message");
+                if (errorEl) {
+                    errorEl.textContent =
+                        "Please upload both followers and following files.";
+                }
+                console.error("Invalid JSON format:", {
+                    followersData,
+                    followingData,
+                });
+                return;
+            }
+
+            const followersSet = new Set<string>();
+            followersData.forEach((data) => {
+                data.forEach((f: any) => {
+                    if (
+                        f.string_list_data &&
+                        f.string_list_data[0] &&
+                        f.string_list_data[0].value
+                    ) {
+                        followersSet.add(f.string_list_data[0].value);
+                    } else {
+                        console.error("Invalid follower entry:", f);
+                    }
+                });
+            });
+
+            const followingList: Array<{ username: string; href: string }> = [];
+            followingData.forEach((data) => {
+                if (!data || !Array.isArray(data.relationships_following)) {
+                    console.error("Invalid following JSON root:", data);
+                    return;
+                }
+
+                data.relationships_following.forEach((f: any) => {
+                    const sld =
+                        f && f.string_list_data && f.string_list_data[0];
+                    const href = sld && sld.href ? sld.href : "";
+                    const usernameFromValue = sld && sld.value ? sld.value : "";
+                    const usernameFromHref =
+                        extractUsernameFromInstagramHref(href);
+                    const username = usernameFromValue || usernameFromHref;
+
+                    if (username) {
+                        // Normalize to standard profile URL to avoid broken `/_u/` links
+                        const normalizedHref = username
+                            ? `https://www.instagram.com/${username}/`
+                            : href;
+
+                        followingList.push({
+                            username,
+                            href: normalizedHref,
+                        });
+                    } else {
+                        console.error("Invalid following entry:", f);
+                    }
+                });
+            });
+
+            const nonFollowers = followingList.filter(
+                (f) => !followersSet.has(f.username),
+            );
+
+            // Store globally for bulk actions
+            currentNonFollowers = nonFollowers;
+
+            console.log("Non-Followers:", nonFollowers);
+
+            const totalToUnfollow = nonFollowers.length;
+            const totalEl = document.getElementById("total-to-unfollow");
+            if (totalEl) {
+                totalEl.textContent =
+                    totalToUnfollow > 0
+                        ? `Found ${totalToUnfollow} ${totalToUnfollow === 1 ? "person" : "people"} who don't follow you back`
+                        : "Everyone you follow follows you back! 🎉";
+            }
+
+            // Reset to page 1 when new results come in
+            currentPage = 1;
+
+            const resultList = document.getElementById("resultList");
+            const bulkActions = document.getElementById("bulk-actions");
+            const paginationControls = document.getElementById(
+                "pagination-controls",
+            );
+            const itemsPerPageSelector = document.getElementById(
+                "items-per-page-selector",
+            );
+
+            if (!resultList) return;
+
+            resultList.innerHTML = "";
+
+            if (nonFollowers.length === 0) {
+                if (bulkActions) bulkActions.classList.add("hidden");
+                if (paginationControls)
+                    paginationControls.classList.add("hidden");
+                if (itemsPerPageSelector)
+                    itemsPerPageSelector.classList.add("hidden");
+                resultList.innerHTML =
+                    '<tr><td colspan="4" class="px-6 py-8 text-center text-sm text-gray-600 dark:text-gray-400">Everyone you follow follows you back! 🎉</td></tr>';
+            } else {
+                // Show bulk actions and pagination
+                if (bulkActions) bulkActions.classList.remove("hidden");
+                if (itemsPerPageSelector)
+                    itemsPerPageSelector.classList.remove("hidden");
+                if (paginationControls)
+                    paginationControls.classList.remove("hidden");
+
+                renderPage();
+            }
+        };
+
+        (window as any).openAll = function () {
+            if (
+                !confirm(
+                    `This will open ${currentNonFollowers.length} tabs. Continue?`,
+                )
+            ) {
+                return;
+            }
+
+            currentNonFollowers.forEach((user, index) => {
+                setTimeout(() => {
+                    window.open(user.href, "_blank");
+
+                    // Mark checkbox as checked
+                    const checkbox = document.getElementById(
+                        `checkbox-${index}`,
+                    ) as HTMLInputElement;
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        (window as any).toggleChecked(checkbox, index);
+                    }
+                }, index * 100); // Small delay to prevent browser blocking
+            });
+
+            // Update message
+            const totalEl = document.getElementById("total-to-unfollow");
+            if (totalEl) {
+                totalEl.textContent = `All ${currentNonFollowers.length} profiles opened! 🎉`;
+            }
+        };
+
+        (window as any).toggleChecked = function (
+            checkbox: HTMLInputElement,
+            index: number,
+        ) {
+            const tr = checkbox.closest("tr");
+            if (!tr) return;
+
+            if (checkbox.checked) {
+                tr.classList.add("opacity-50", "line-through");
+            } else {
+                tr.classList.remove("opacity-50", "line-through");
+            }
+        };
+
+        (window as any).handleLinkClick = function (index: number) {
+            const checkbox = document.getElementById(
+                `checkbox-${index}`,
+            ) as HTMLInputElement;
+            if (checkbox) {
+                checkbox.checked = true;
+                (window as any).toggleChecked(checkbox, index);
+            }
+        };
+
+        function renderPage() {
+            const resultList = document.getElementById("resultList");
+            if (!resultList) return;
+
+            const totalItems = currentNonFollowers.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const pageItems = currentNonFollowers.slice(startIndex, endIndex);
+
+            resultList.innerHTML = "";
+            pageItems.forEach((user, pageIndex) => {
+                const globalIndex = startIndex + pageIndex;
+                const tr = document.createElement("tr");
+                tr.className =
+                    "bg-white dark:bg-gray-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors";
+                tr.innerHTML = `
+          <td class="px-6 py-4 text-gray-900 dark:text-gray-100">${globalIndex + 1}</td>
+          <td class="px-6 py-4 font-medium text-black dark:text-white">${user.username}</td>
+          <td class="px-6 py-4">
+            <a href="${user.href}" target="_blank" class="inline-flex items-center gap-1 text-sm text-black dark:text-white hover:underline" onclick="handleLinkClick(${globalIndex})">
+              View Profile
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+            </a>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center">
+              <input id="checkbox-${globalIndex}" type="checkbox" class="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-black dark:focus:ring-white dark:bg-gray-700 dark:border-gray-600" onclick="toggleChecked(this, ${globalIndex})">
+              <label for="checkbox-${globalIndex}" class="ml-2 text-sm text-gray-900 dark:text-gray-300">Done</label>
+            </div>
+          </td>
+        `;
+                resultList.appendChild(tr);
+            });
+
+            // Update pagination info
+            const paginationInfo = document.getElementById("pagination-info");
+            if (paginationInfo) {
+                paginationInfo.textContent = `Showing ${startIndex + 1} to ${endIndex} of ${totalItems}`;
+            }
+
+            // Update pagination buttons
+            const prevButton = document.getElementById(
+                "prev-page",
+            ) as HTMLButtonElement;
+            const nextButton = document.getElementById(
+                "next-page",
+            ) as HTMLButtonElement;
+
+            if (prevButton) {
+                prevButton.disabled = currentPage === 1;
+            }
+            if (nextButton) {
+                nextButton.disabled = currentPage === totalPages;
+            }
+
+            // Render page numbers
+            renderPageNumbers(totalPages);
+        }
+
+        function renderPageNumbers(totalPages: number) {
+            const pageNumbersContainer =
+                document.getElementById("page-numbers");
+            if (!pageNumbersContainer) return;
+
+            pageNumbersContainer.innerHTML = "";
+
+            // Show max 5 page numbers at a time
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+
+            // Adjust if we're near the end
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            // First page
+            if (startPage > 1) {
+                pageNumbersContainer.appendChild(createPageButton(1));
+                if (startPage > 2) {
+                    const ellipsis = document.createElement("span");
+                    ellipsis.className =
+                        "px-2 text-xs text-gray-600 dark:text-gray-400";
+                    ellipsis.textContent = "...";
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+            }
+
+            // Page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                pageNumbersContainer.appendChild(createPageButton(i));
+            }
+
+            // Last page
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement("span");
+                    ellipsis.className =
+                        "px-2 text-xs text-gray-600 dark:text-gray-400";
+                    ellipsis.textContent = "...";
+                    pageNumbersContainer.appendChild(ellipsis);
+                }
+                pageNumbersContainer.appendChild(createPageButton(totalPages));
+            }
+        }
+
+        function createPageButton(pageNum: number) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = pageNum.toString();
+            button.onclick = () => (window as any).goToPage(pageNum);
+
+            if (pageNum === currentPage) {
+                button.className =
+                    "w-8 h-8 border border-zinc-800 dark:border-zinc-200 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-medium transition-all";
+            } else {
+                button.className =
+                    "w-8 h-8 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg text-xs font-medium text-black dark:text-white hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all";
+            }
+
+            return button;
+        }
+
+        (window as any).goToPage = function (page: number) {
+            currentPage = page;
+            renderPage();
+        };
+
+        (window as any).previousPage = function () {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage();
+            }
+        };
+
+        (window as any).nextPage = function () {
+            const totalPages = Math.ceil(
+                currentNonFollowers.length / itemsPerPage,
+            );
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPage();
+            }
+        };
+
+        (window as any).changeItemsPerPage = function () {
+            const select = document.getElementById(
+                "itemsPerPage",
+            ) as HTMLSelectElement;
+            if (select) {
+                itemsPerPage = parseInt(select.value);
+                currentPage = 1; // Reset to first page
+                renderPage();
+            }
+        };
+    </script>
+</Layout>
