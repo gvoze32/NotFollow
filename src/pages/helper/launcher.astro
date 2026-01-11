@@ -24,7 +24,8 @@ import Footer from "../../components/Footer.astro";
                 Unfollow Helper
             </h1>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-                Open profiles one-by-one. Keep this tab open, then click
+                Open profiles one-by-one (anti popup-block). Keep this tab open,
+                then click
                 <strong>Open Next</strong>.
             </p>
         </div>
@@ -178,10 +179,68 @@ https://...'
                 >
                     Queue preview
                 </h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                    This is the exact order the helper will open. Each click
-                    opens exactly one tab, so popup blockers usually allow it.
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                    Keyboard shortcuts: <strong>N</strong> = next, <strong
+                        >P</strong
+                    > = previous, <strong>R</strong> = reset.
                 </p>
+
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    This is the exact order the helper will open.
+                </p>
+
+                <div
+                    class="flex items-center justify-between flex-wrap gap-3 mb-3"
+                >
+                    <div class="flex items-center gap-2">
+                        <label
+                            for="queueItemsPerPage"
+                            class="text-xs text-gray-600 dark:text-gray-400"
+                            >Rows per page:</label
+                        >
+                        <select
+                            id="queueItemsPerPage"
+                            class="text-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg px-2 py-1 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200 appearance-none cursor-pointer"
+                            style="padding-right: 1.5rem; background-image: none;"
+                        >
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+
+                    <div
+                        class="text-xs text-gray-600 dark:text-gray-400"
+                        id="queuePaginationInfo"
+                    >
+                        Showing 0 to 0 of 0
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            id="queuePrevPage"
+                            disabled
+                            class="inline-flex items-center justify-center gap-2 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10"
+                        >
+                            Prev
+                        </button>
+                        <div
+                            id="queuePageNumbers"
+                            class="flex items-center gap-1"
+                        >
+                        </div>
+                        <button
+                            type="button"
+                            id="queueNextPage"
+                            disabled
+                            class="inline-flex items-center justify-center gap-2 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
 
                 <div
                     class="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800"
@@ -209,12 +268,6 @@ https://...'
                         </tbody>
                     </table>
                 </div>
-
-                <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                    Keyboard shortcuts: <strong>N</strong> = next, <strong
-                        >P</strong
-                    > = previous, <strong>R</strong> = reset.
-                </p>
             </div>
         </div>
     </section>
@@ -229,6 +282,10 @@ https://...'
 
         let queue: QueueItem[] = [];
         let index = 0; // points to NEXT item to open
+
+        // Queue preview pagination state
+        let queuePage = 1;
+        let queueItemsPerPage = 10;
 
         function $(id: string) {
             return document.getElementById(id);
@@ -373,6 +430,92 @@ https://...'
             } catch {}
         }
 
+        function renderQueuePagination(total: number) {
+            const info = $("queuePaginationInfo");
+            const prevBtn = $("queuePrevPage") as HTMLButtonElement | null;
+            const nextBtn = $("queueNextPage") as HTMLButtonElement | null;
+            const pageNumbers = $("queuePageNumbers");
+
+            const totalPages = Math.max(
+                1,
+                Math.ceil(total / queueItemsPerPage),
+            );
+            if (queuePage > totalPages) queuePage = totalPages;
+            if (queuePage < 1) queuePage = 1;
+
+            const startIndex =
+                total === 0 ? 0 : (queuePage - 1) * queueItemsPerPage + 1;
+            const endIndex =
+                total === 0
+                    ? 0
+                    : Math.min(queuePage * queueItemsPerPage, total);
+
+            if (info) {
+                info.textContent = `Showing ${startIndex} to ${endIndex} of ${total}`;
+            }
+
+            if (prevBtn) prevBtn.disabled = queuePage <= 1 || total === 0;
+            if (nextBtn)
+                nextBtn.disabled = queuePage >= totalPages || total === 0;
+
+            if (pageNumbers) {
+                pageNumbers.innerHTML = "";
+
+                // Show max 5 page numbers at a time
+                let startPage = Math.max(1, queuePage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+
+                const makeBtn = (p: number) => {
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.textContent = String(p);
+                    b.onclick = () => {
+                        queuePage = p;
+                        render();
+                    };
+
+                    if (p === queuePage) {
+                        b.className =
+                            "w-7 h-7 border border-zinc-800 dark:border-zinc-200 bg-black dark:bg-white text-white dark:text-black rounded-lg text-[11px] font-medium transition-all";
+                    } else {
+                        b.className =
+                            "w-7 h-7 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg text-[11px] font-medium text-black dark:text-white hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all";
+                    }
+                    return b;
+                };
+
+                if (startPage > 1) {
+                    pageNumbers.appendChild(makeBtn(1));
+                    if (startPage > 2) {
+                        const ell = document.createElement("span");
+                        ell.className =
+                            "px-1 text-[11px] text-gray-600 dark:text-gray-400";
+                        ell.textContent = "...";
+                        pageNumbers.appendChild(ell);
+                    }
+                }
+
+                for (let p = startPage; p <= endPage; p++) {
+                    pageNumbers.appendChild(makeBtn(p));
+                }
+
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        const ell = document.createElement("span");
+                        ell.className =
+                            "px-1 text-[11px] text-gray-600 dark:text-gray-400";
+                        ell.textContent = "...";
+                        pageNumbers.appendChild(ell);
+                    }
+                    pageNumbers.appendChild(makeBtn(totalPages));
+                }
+            }
+        }
+
         function render() {
             const totalCount = $("totalCount");
             const currentIndex = $("currentIndex");
@@ -402,11 +545,24 @@ https://...'
             if (openPrevBtn) openPrevBtn.disabled = !canOpenPrev;
             if (resetBtn) resetBtn.disabled = !canReset;
 
+            renderQueuePagination(total);
+
             const tbody = $("queueTable");
             if (!tbody) return;
 
+            const totalPages = Math.max(
+                1,
+                Math.ceil(total / queueItemsPerPage),
+            );
+            if (queuePage > totalPages) queuePage = totalPages;
+
+            const start = (queuePage - 1) * queueItemsPerPage;
+            const end = Math.min(start + queueItemsPerPage, total);
+            const pageItems = queue.slice(start, end);
+
             tbody.innerHTML = "";
-            queue.forEach((it, i) => {
+            pageItems.forEach((it, pageIndex) => {
+                const i = start + pageIndex;
                 const tr = document.createElement("tr");
                 const status =
                     i < index ? "opened" : i === index ? "next" : "pending";
@@ -440,6 +596,7 @@ https://...'
         function setQueue(items: QueueItem[]) {
             queue = items;
             index = 0;
+            queuePage = 1;
             saveState();
             render();
         }
@@ -534,6 +691,16 @@ https://...'
             const openPrevBtn = $("openPrevBtn");
             const resetBtn = $("resetBtn");
 
+            const queuePrevPage = $(
+                "queuePrevPage",
+            ) as HTMLButtonElement | null;
+            const queueNextPage = $(
+                "queueNextPage",
+            ) as HTMLButtonElement | null;
+            const queueItemsPerPageSelect = $(
+                "queueItemsPerPage",
+            ) as HTMLSelectElement | null;
+
             loadBtn?.addEventListener("click", () => {
                 setError("");
                 const raw =
@@ -553,6 +720,27 @@ https://...'
             copyNextBtn?.addEventListener("click", copyNextUrl);
             openPrevBtn?.addEventListener("click", openPrev);
             resetBtn?.addEventListener("click", resetProgress);
+
+            queuePrevPage?.addEventListener("click", () => {
+                queuePage = Math.max(1, queuePage - 1);
+                render();
+            });
+
+            queueNextPage?.addEventListener("click", () => {
+                const totalPages = Math.max(
+                    1,
+                    Math.ceil(queue.length / queueItemsPerPage),
+                );
+                queuePage = Math.min(totalPages, queuePage + 1);
+                render();
+            });
+
+            queueItemsPerPageSelect?.addEventListener("change", () => {
+                const v = parseInt(queueItemsPerPageSelect.value, 10);
+                queueItemsPerPage = Number.isFinite(v) && v > 0 ? v : 10;
+                queuePage = 1;
+                render();
+            });
 
             document.addEventListener("keydown", (e) => {
                 const tag = (e.target as any)?.tagName?.toLowerCase?.() || "";

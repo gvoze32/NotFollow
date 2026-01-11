@@ -1,0 +1,186 @@
+---
+type Props = {
+    title: string;
+    subtitleId: string;
+    subtitleDefault?: string;
+
+    /** Optional id for the "items per page" wrapper (so existing JS can show/hide it) */
+    itemsPerPageSelectorId?: string;
+
+    /** Optional id for the "bulk actions" wrapper (so existing JS can show/hide it) */
+    bulkActionsId?: string;
+
+    /** Optional id for the pagination wrapper (so existing JS can show/hide it) */
+    paginationControlsId?: string;
+
+    /** Optional id for the pagination info label (so existing JS can update it) */
+    paginationInfoId?: string;
+
+    /** Optional id for the page numbers container (so existing JS can render it) */
+    pageNumbersId?: string;
+
+    /** Optional ids for prev/next buttons (so existing JS can enable/disable) */
+    prevPageButtonId?: string;
+    nextPageButtonId?: string;
+
+    /** Handlers are strings because pages currently use inline `onclick="..."` */
+    prevPageOnClick?: string;
+    nextPageOnClick?: string;
+
+    /** Show/hide the items-per-page control entirely (default: true) */
+    showItemsPerPage?: boolean;
+
+    /** Select id (default: itemsPerPage) and onChange handler (string) */
+    itemsPerPageSelectId?: string;
+    itemsPerPageOnChange?: string;
+
+    /** Default max width wrapper (default: max-w-2xl) */
+    containerClass?: string;
+
+    /** Optional extra classnames for the card wrapper */
+    cardClass?: string;
+};
+
+const {
+    title,
+    subtitleId,
+    subtitleDefault = "Upload data to see results",
+
+    itemsPerPageSelectorId = "items-per-page-selector",
+    bulkActionsId = "bulk-actions",
+
+    paginationControlsId = "pagination-controls",
+    paginationInfoId = "pagination-info",
+    pageNumbersId = "page-numbers",
+
+    prevPageButtonId = "prev-page",
+    nextPageButtonId = "next-page",
+    prevPageOnClick = "previousPage()",
+    nextPageOnClick = "nextPage()",
+
+    showItemsPerPage = true,
+    itemsPerPageSelectId = "itemsPerPage",
+    itemsPerPageOnChange = "changeItemsPerPage()",
+
+    containerClass = "max-w-2xl",
+    cardClass = "",
+} = Astro.props as Props;
+---
+
+<section class="pb-8 px-4 bg-white dark:bg-gray-950">
+    <div class={`${containerClass} mx-auto`}>
+        <div
+            class={`border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden ${cardClass}`}
+        >
+            <!-- Header (helper-style) -->
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-800">
+                <div class="flex items-center justify-between flex-wrap gap-3 mb-2">
+                    <h2 class="text-lg font-semibold text-black dark:text-white">
+                        {title}
+                    </h2>
+
+                    <div class="flex items-center gap-2">
+                        {showItemsPerPage && (
+                            <div id={itemsPerPageSelectorId} class="hidden">
+                                <label
+                                    for={itemsPerPageSelectId}
+                                    class="text-xs text-gray-600 dark:text-gray-400 mr-2"
+                                >
+                                    Items per page:
+                                </label>
+                                <select
+                                    id={itemsPerPageSelectId}
+                                    onchange={itemsPerPageOnChange}
+                                    class="text-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg px-2 py-1 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200 appearance-none cursor-pointer"
+                                    style="padding-right: 1.5rem; background-image: none;"
+                                >
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        )}
+
+                        <div id={bulkActionsId} class="hidden">
+                            <slot name="bulk-actions" />
+                        </div>
+                    </div>
+                </div>
+
+                <p id={subtitleId} class="text-sm text-gray-600 dark:text-gray-400">
+                    {subtitleDefault}
+                </p>
+            </div>
+
+            <!-- Pagination (helper-style, placed ABOVE table) -->
+            <div
+                id={paginationControlsId}
+                class="hidden p-4 border-b border-zinc-200 dark:border-zinc-800"
+            >
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div
+                        class="text-xs text-gray-600 dark:text-gray-400"
+                        id={paginationInfoId}
+                    >
+                        Showing 0 to 0 of 0
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            id={prevPageButtonId}
+                            onclick={prevPageOnClick}
+                            class="inline-flex items-center gap-1 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-3 py-1.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-xs font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled
+                        >
+                            <svg
+                                class="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 19l-7-7 7-7"
+                                ></path>
+                            </svg>
+                            Previous
+                        </button>
+
+                        <div class="flex items-center gap-1" id={pageNumbersId}>
+                            <!-- Page numbers injected by page JS -->
+                        </div>
+
+                        <button
+                            type="button"
+                            id={nextPageButtonId}
+                            onclick={nextPageOnClick}
+                            class="inline-flex items-center gap-1 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-3 py-1.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-xs font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                            <svg
+                                class="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 5l7 7-7 7"
+                                ></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <slot />
+        </div>
+    </div>
+</section>
