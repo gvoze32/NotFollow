@@ -201,35 +201,31 @@ import ResultsCard from "../components/results/ResultsCard.astro";
           </button>
         </div>
         <div class="p-6 space-y-4 text-sm text-gray-600 dark:text-gray-400">
-          <p class="font-medium text-black dark:text-white">
-            Follow these steps to download your TikTok data:
-          </p>
-          <ol class="list-decimal list-inside space-y-2 leading-relaxed">
-            <li>Open TikTok and go to your profile</li>
-            <li>Tap the three-line menu icon in the top right</li>
-            <li>Go to <strong>Settings and privacy</strong></li>
-            <li>
-              Tap <strong>Account</strong>, then tap on <strong
-                >Download your data</strong
-              >
-            </li>
-            <li>Tap <strong>Select data to download</strong></li>
-            <li>
-              Choose <strong>Custom</strong> then check <strong
-                >Profile and posts</strong
-              >
-            </li>
-            <li>Tap <strong>Select file format</strong></li>
-            <li>Select <strong>JSON</strong> as the file format</li>
-            <li>Tap <strong>Request data</strong></li>
-            <li>Once ready, download the ZIP file containing your data</li>
-            <li>
-              Extract the ZIP file and locate the <code
-                class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-900 rounded text-xs"
-                >user_data.json</code
-              > file
-            </li>
-          </ol>
+          <div class="space-y-3">
+            <p class="font-medium text-black dark:text-white">Tutorial Video</p>
+            <div
+              class="aspect-video w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800 bg-black"
+            >
+              <iframe
+                class="h-full w-full"
+                src="https://www.youtube-nocookie.com/embed/I1Nk4ag9naY"
+                title="How to download TikTok data (NotFollow tutorial)"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen></iframe>
+            </div>
+
+            <div
+              class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 p-3"
+            >
+              <p class="text-xs text-gray-700 dark:text-gray-300">
+                Note: in <strong>Select data to download</strong>, make sure to
+                check <strong>Profile and Settings</strong>, and ensure the
+                download format is <strong>JSON</strong>.
+              </p>
+            </div>
+          </div>
         </div>
         <div
           class="flex items-center justify-end p-6 border-t border-zinc-200 dark:border-zinc-800"
