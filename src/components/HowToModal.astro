@@ -1,0 +1,72 @@
+---
+type Props = {
+  title: string;
+  videoId: string;
+  videoTitle: string;
+};
+
+const { title, videoId, videoTitle } = Astro.props;
+---
+
+<div
+  id="howToModal"
+  tabindex="-1"
+  aria-hidden="true"
+  class="fixed inset-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto bg-black/50 backdrop-blur-sm"
+>
+  <div class="relative w-full max-w-2xl max-h-full mx-auto my-8">
+    <div
+      class="relative border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-gray-950 rounded-xl shadow-lg"
+    >
+      <div
+        class="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800"
+      >
+        <h3 class="text-xl font-semibold text-black dark:text-white">
+          {title}
+        </h3>
+        <button
+          type="button"
+          class="text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm p-1.5 ml-auto inline-flex items-center transition-colors"
+          data-modal-hide="howToModal"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 text-sm text-gray-600 dark:text-gray-400">
+        <div class="space-y-3">
+          <p class="font-medium text-black dark:text-white">Tutorial Video</p>
+          <div
+            class="aspect-video w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800 bg-black"
+          >
+            <iframe
+              class="h-full w-full"
+              src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+              title={videoTitle}
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen></iframe>
+          </div>
+
+          <slot />
+        </div>
+      </div>
+      <div
+        class="flex items-center justify-end p-6 border-t border-zinc-200 dark:border-zinc-800"
+      >
+        <button
+          data-modal-hide="howToModal"
+          type="button"
+          class="inline-flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

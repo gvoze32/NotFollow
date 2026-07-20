@@ -3,33 +3,16 @@ import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import ResultsCard from "../components/results/ResultsCard.astro";
+import PageHero from "../components/PageHero.astro";
 ---
 
 <Layout title="GitHub NotFollow - Check Who Doesn't Follow You Back">
     <Navbar />
 
-    <!-- Hero Section -->
-    <section
-        class="relative pt-24 pb-6 px-4 overflow-hidden bg-white dark:bg-gray-950"
-    >
-        <div class="absolute inset-0 z-0 opacity-5 dark:opacity-10">
-            <div
-                class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]"
-            >
-            </div>
-        </div>
-
-        <div class="max-w-2xl mx-auto text-center z-10 relative">
-            <h1
-                class="text-2xl md:text-3xl font-bold mb-2 text-black dark:text-white tracking-tight"
-            >
-                GitHub NotFollow
-            </h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-                Enter a GitHub username to discover who doesn't follow you back
-            </p>
-        </div>
-    </section>
+    <PageHero
+        title="GitHub NotFollow"
+        subtitle="Enter a GitHub username to discover who doesn't follow you back"
+    />
 
     <!-- Input Section -->
     <section class="pb-8 px-4 bg-white dark:bg-gray-950">

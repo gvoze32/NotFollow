@@ -189,6 +189,13 @@ https://...'
                     This is the exact order the helper will open.
                 </p>
 
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    If a profile shows "Sorry, this page isn't available", that
+                    account is deactivated or deleted — click
+                    <strong>Hide</strong> to remove it from the queue and
+                    exclude it from future checks.
+                </p>
+
                 <div
                     class="flex items-center justify-between flex-wrap gap-3 mb-3"
                 >
@@ -259,6 +266,9 @@ https://...'
                                 <th class="px-4 py-2 text-left font-medium w-28"
                                     >Status</th
                                 >
+                                <th class="px-4 py-2 text-left font-medium w-20"
+                                    >Action</th
+                                >
                             </tr>
                         </thead>
                         <tbody
@@ -275,7 +285,7 @@ https://...'
     <Footer />
 
     <script>
-        type QueueItem = { url: string };
+        type QueueItem = { url: string; username?: string; hideKey?: string };
 
         const STORAGE_KEY = "notfollow_helper_queue_v1";
         const STORAGE_INDEX_KEY = "notfollow_helper_index_v1";
@@ -341,7 +351,18 @@ https://...'
                                 const url = normalizeUrl(
                                     String(candidate || ""),
                                 );
-                                if (url) items.push({ url });
+                                if (url)
+                                    items.push({
+                                        url,
+                                        username:
+                                            typeof it.username === "string"
+                                                ? it.username
+                                                : undefined,
+                                        hideKey:
+                                            typeof it.hideKey === "string"
+                                                ? it.hideKey
+                                                : undefined,
+                                    });
                             }
                         }
                         return dedupe(items);
@@ -422,6 +443,14 @@ https://...'
                         queue = parsed
                             .map((x: any) => ({
                                 url: normalizeUrl(String(x?.url || x || "")),
+                                username:
+                                    typeof x?.username === "string"
+                                        ? x.username
+                                        : undefined,
+                                hideKey:
+                                    typeof x?.hideKey === "string"
+                                        ? x.hideKey
+                                        : undefined,
                             }))
                             .filter((x: any) => x.url);
                     }
@@ -588,6 +617,11 @@ https://...'
                             ${status}
                         </span>
                     </td>
+                    <td class="px-4 py-2">
+                        <button type="button" data-hide="${i}" title="Hide — removes from the queue and excludes it from future checks (use for deactivated accounts)" class="text-xs border border-zinc-300 dark:border-zinc-700 rounded-md px-2 py-1 text-gray-600 dark:text-gray-400 hover:border-zinc-800 dark:hover:border-zinc-200 hover:text-black dark:hover:text-white transition-all">
+                            Hide
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -637,6 +671,36 @@ https://...'
             setError("");
             if (!queue.length) return;
             index = 0;
+            saveState();
+            render();
+        }
+
+        function hideAt(i: number) {
+            setError("");
+            const it = queue[i];
+            if (!it) return;
+
+            // Persist to the platform's hidden list so future checks exclude it
+            if (it.hideKey && it.username) {
+                try {
+                    const parsed = JSON.parse(
+                        localStorage.getItem(it.hideKey) || "[]",
+                    );
+                    const hidden = new Set<string>(
+                        Array.isArray(parsed)
+                            ? parsed.filter((u: any) => typeof u === "string")
+                            : [],
+                    );
+                    hidden.add(it.username.toLowerCase());
+                    localStorage.setItem(
+                        it.hideKey,
+                        JSON.stringify(Array.from(hidden)),
+                    );
+                } catch {}
+            }
+
+            queue.splice(i, 1);
+            if (index > i) index = Math.max(0, index - 1);
             saveState();
             render();
         }
@@ -714,6 +778,15 @@ https://...'
                     return;
                 }
                 setQueue(items);
+            });
+
+            $("queueTable")?.addEventListener("click", (e) => {
+                const btn = (e.target as HTMLElement | null)?.closest?.(
+                    "[data-hide]",
+                ) as HTMLElement | null;
+                if (!btn) return;
+                const i = parseInt(btn.getAttribute("data-hide") || "", 10);
+                if (Number.isFinite(i)) hideAt(i);
             });
 
             openNextBtn?.addEventListener("click", openNext);

@@ -2,352 +2,104 @@
 import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
-import ResultsCard from "../components/results/ResultsCard.astro";
+import PageHero from "../components/PageHero.astro";
+import UploadCard from "../components/upload/UploadCard.astro";
+import FileInput from "../components/upload/FileInput.astro";
+import HowToModal from "../components/HowToModal.astro";
+import NonFollowersResults from "../components/results/NonFollowersResults.astro";
 ---
 
 <Layout title="TikTok NotFollow - Check Who Doesn't Follow You Back">
   <Navbar />
 
-  <!-- Hero Section -->
-  <section
-    class="relative pt-24 pb-6 px-4 overflow-hidden bg-white dark:bg-gray-950"
-  >
-    <div class="absolute inset-0 z-0 opacity-5 dark:opacity-10">
-      <div
-        class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]"
-      >
-      </div>
-    </div>
+  <PageHero
+    title="TikTok NotFollow"
+    subtitle="Upload your TikTok data file to discover who doesn't follow you back"
+  />
 
-    <div class="max-w-2xl mx-auto text-center z-10 relative">
-      <h1
-        class="text-2xl md:text-3xl font-bold mb-2 text-black dark:text-white tracking-tight"
-      >
-        TikTok NotFollow
-      </h1>
-      <p class="text-sm text-gray-600 dark:text-gray-400">
-        Upload your TikTok data file to discover who doesn't follow you back
-      </p>
-    </div>
-  </section>
+  <UploadCard howToLabel="How to Get File">
+    <FileInput
+      id="tiktokDataFile"
+      label="TikTok Data File"
+      accept=".json"
+      hint="Select your user_data.json file"
+    />
+  </UploadCard>
 
-  <!-- Upload Section -->
-  <section class="pb-8 px-4 bg-white dark:bg-gray-950">
-    <div class="max-w-2xl mx-auto">
-      <div
-        id="error-message"
-        class="mb-4 text-sm text-red-600 dark:text-red-400"
-      >
-      </div>
-
-      <div
-        class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl p-6 mb-4"
-      >
-        <div class="mb-4">
-          <label
-            for="tiktokDataFile"
-            class="block mb-2 text-sm font-medium text-black dark:text-white"
-          >
-            TikTok Data File
-          </label>
-          <input
-            class="block w-full text-sm text-gray-900 dark:text-gray-400 border border-zinc-300 dark:border-zinc-700 rounded-lg cursor-pointer bg-white dark:bg-gray-900 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black dark:file:bg-white file:text-white dark:file:text-black hover:file:bg-black/90 dark:hover:file:bg-white/90"
-            id="tiktokDataFile"
-            accept=".json"
-            type="file"
-          />
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Select your user_data.json file
-          </p>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onclick="processFiles()"
-            class="inline-flex items-center gap-2 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-2.5 py-1.5 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-xs font-medium text-black dark:text-white transition-all"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"></path>
-            </svg>
-            Check Non-Followers
-          </button>
-          <button
-            type="button"
-            data-modal-target="howToModal"
-            data-modal-toggle="howToModal"
-            class="inline-flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-            How to Get File
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <ResultsCard
-    title="People who don't follow you back"
-    subtitleId="total-to-unfollow"
-    subtitleDefault="Upload files to see results"
-    itemsPerPageSelectorId="items-per-page-selector"
-    bulkActionsId="bulk-actions"
-    paginationControlsId="pagination-controls"
-    paginationInfoId="pagination-info"
-    pageNumbersId="page-numbers"
-    prevPageButtonId="prev-page"
-    nextPageButtonId="next-page"
-    prevPageOnClick="previousPage()"
-    nextPageOnClick="nextPage()"
-    itemsPerPageSelectId="itemsPerPage"
-    itemsPerPageOnChange="changeItemsPerPage()"
-  >
-    <button
-      slot="bulk-actions"
-      type="button"
-      onclick="startUnfollowHelper()"
-      class="inline-flex items-center gap-2 text-xs border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-2.5 py-1.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 font-medium text-black dark:text-white transition-all"
-    >
-      <svg
-        class="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 5l7 7-7 7"></path>
-      </svg>
-      Start Unfollow Helper
-    </button>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm table-fixed">
-        <thead
-          class="text-xs uppercase bg-zinc-50 dark:bg-zinc-900 text-gray-700 dark:text-gray-400"
-        >
-          <tr>
-            <th scope="col" class="w-16 px-4 py-2 text-center font-medium"
-              >No.</th
-            >
-            <th scope="col" class="px-4 py-2 text-left font-medium">Username</th
-            >
-          </tr>
-        </thead>
-        <tbody
-          id="resultList"
-          class="divide-y divide-zinc-200 dark:divide-zinc-800"
-        >
-          <!-- Results will be inserted here -->
-        </tbody>
-      </table>
-    </div>
-  </ResultsCard>
+  <NonFollowersResults platformName="TikTok" />
 
   <Footer />
 
-  <!-- Modal: How to get JSON file -->
-  <div
-    id="howToModal"
-    tabindex="-1"
-    aria-hidden="true"
-    class="fixed inset-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto bg-black/50 backdrop-blur-sm"
+  <HowToModal
+    title="How to Get TikTok Data File"
+    videoId="I1Nk4ag9naY"
+    videoTitle="How to download TikTok data (NotFollow tutorial)"
   >
-    <div class="relative w-full max-w-2xl max-h-full mx-auto my-8">
-      <div
-        class="relative border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-gray-950 rounded-xl shadow-lg"
-      >
-        <div
-          class="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800"
-        >
-          <h3 class="text-xl font-semibold text-black dark:text-white">
-            How to Get TikTok Data File
-          </h3>
-          <button
-            type="button"
-            class="text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm p-1.5 ml-auto inline-flex items-center transition-colors"
-            data-modal-hide="howToModal"
-          >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clip-rule="evenodd"></path>
-            </svg>
-          </button>
-        </div>
-        <div class="p-6 space-y-4 text-sm text-gray-600 dark:text-gray-400">
-          <div class="space-y-3">
-            <p class="font-medium text-black dark:text-white">Tutorial Video</p>
-            <div
-              class="aspect-video w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800 bg-black"
-            >
-              <iframe
-                class="h-full w-full"
-                src="https://www.youtube-nocookie.com/embed/I1Nk4ag9naY"
-                title="How to download TikTok data (NotFollow tutorial)"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="strict-origin-when-cross-origin"
-                allowfullscreen></iframe>
-            </div>
-
-            <div
-              class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 p-3"
-            >
-              <p class="text-xs text-gray-700 dark:text-gray-300">
-                Note: in <strong>Select data to download</strong>, make sure to
-                check <strong>Profile and Settings</strong>, and ensure the
-                download format is <strong>JSON</strong>.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div
-          class="flex items-center justify-end p-6 border-t border-zinc-200 dark:border-zinc-800"
-        >
-          <button
-            data-modal-hide="howToModal"
-            type="button"
-            class="inline-flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
-          >
-            Close
-          </button>
-        </div>
-      </div>
+    <div
+      class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 p-3"
+    >
+      <p class="text-xs text-gray-700 dark:text-gray-300">
+        Note: in <strong>Select data to download</strong>, make sure to check
+        <strong>Profile and Settings</strong>, and ensure the download format is
+        <strong>JSON</strong>.
+      </p>
     </div>
-  </div>
+  </HowToModal>
 
   <script>
-    let userData: any = null;
+    import {
+      createNotFollowPage,
+      initModals,
+      onFileChange,
+      setError,
+      type Account,
+    } from "../scripts/notfollow-page";
 
-    // Modal toggle functionality
-    document.addEventListener("DOMContentLoaded", () => {
-      const modalToggles = document.querySelectorAll("[data-modal-toggle]");
-      const modalHides = document.querySelectorAll("[data-modal-hide]");
+    initModals();
 
-      modalToggles.forEach((toggle) => {
-        toggle.addEventListener("click", () => {
-          const modalId = toggle.getAttribute("data-modal-target");
-          const modal = document.getElementById(modalId!);
-          if (modal) {
-            modal.classList.toggle("hidden");
-          }
-        });
-      });
-
-      modalHides.forEach((hide) => {
-        hide.addEventListener("click", () => {
-          const modalId = hide.getAttribute("data-modal-hide");
-          const modal = document.getElementById(modalId!);
-          if (modal) {
-            modal.classList.add("hidden");
-          }
-        });
-      });
-
-      // Close modal on background click
-      document.querySelectorAll('[id$="Modal"]').forEach((modal) => {
-        modal.addEventListener("click", (e) => {
-          if (e.target === modal) {
-            modal.classList.add("hidden");
-          }
-        });
-      });
+    const page = createNotFollowPage({
+      hiddenKey: "notfollow_hidden_tiktok_v1",
     });
 
-    document
-      .getElementById("tiktokDataFile")
-      ?.addEventListener("change", function (event) {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (!file) return;
+    let userData: any = null;
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          try {
-            userData = JSON.parse(e.target?.result as string);
-            console.log("TikTok User Data:", userData);
-            const errorEl = document.getElementById("error-message");
-            if (errorEl) errorEl.textContent = "";
-          } catch (error) {
-            console.error("Error parsing TikTok data file:", error);
-            const errorEl = document.getElementById("error-message");
-            if (errorEl) {
-              errorEl.textContent =
-                "Error parsing TikTok data file. Please make sure it is in the correct format.";
-            }
-          }
-        };
-        reader.readAsText(file);
-      });
-
-    let currentNonFollowers: Array<{
-      username: string;
-      href: string;
-    }> = [];
-    let currentPage = 1;
-    let itemsPerPage = 10;
+    onFileChange("tiktokDataFile", (content) => {
+      try {
+        userData = JSON.parse(content);
+        setError("");
+      } catch (error) {
+        console.error("Error parsing TikTok data file:", error);
+        setError(
+          "Error parsing TikTok data file. Please make sure it is in the correct format."
+        );
+      }
+    });
 
     (window as any).processFiles = function () {
       if (!userData) {
-        const errorEl = document.getElementById("error-message");
-        if (errorEl) {
-          errorEl.textContent =
-            "Invalid JSON format. Please upload a valid TikTok user data file.";
-        }
+        setError(
+          "Invalid JSON format. Please upload a valid TikTok user data file."
+        );
         return;
       }
 
       try {
         const asArray = (value: any) => (Array.isArray(value) ? value : []);
 
-        const getFollowersRows = (data: any) => {
-          // Supports multiple TikTok export variants
-          const fansList =
-            data?.Profile?.["Follower List"]?.FansList ??
-            data?.Profile?.Follower?.FansList ??
-            data?.["Profile And Settings"]?.Follower?.FansList ??
-            data?.Follower?.FansList;
+        // Supports multiple TikTok export variants
+        const followerRows = asArray(
+          userData?.Profile?.["Follower List"]?.FansList ??
+            userData?.Profile?.Follower?.FansList ??
+            userData?.["Profile And Settings"]?.Follower?.FansList ??
+            userData?.Follower?.FansList
+        );
 
-          return asArray(fansList);
-        };
-
-        const getFollowingRows = (data: any) => {
-          const following =
-            data?.Profile?.["Following List"]?.Following ??
-            data?.Profile?.Following?.Following ??
-            data?.["Profile And Settings"]?.Following?.Following ??
-            data?.Following?.Following;
-
-          return asArray(following);
-        };
-
-        const followerRows = getFollowersRows(userData);
-        const followingRows = getFollowingRows(userData);
+        const followingRows = asArray(
+          userData?.Profile?.["Following List"]?.Following ??
+            userData?.Profile?.Following?.Following ??
+            userData?.["Profile And Settings"]?.Following?.Following ??
+            userData?.Following?.Following
+        );
 
         // If neither array exists, the file is likely a different TikTok export or wrong file.
         if (followerRows.length === 0 && followingRows.length === 0) {
@@ -360,256 +112,27 @@ import ResultsCard from "../components/results/ResultsCard.astro";
           followerRows
             .map((f: any) => f?.UserName)
             .filter((u: any) => typeof u === "string" && u.length > 0)
+            .map((u: string) => u.toLowerCase())
         );
 
-        const followingList = followingRows
-          .map((f: any) => ({
-            username: f?.UserName,
-          }))
-          .filter(
-            (f: any) => typeof f.username === "string" && f.username.length > 0
-          )
-          .map((f: any) => ({
-            ...f,
-            href: `https://www.tiktok.com/@${f.username}`,
+        const followingList: Account[] = followingRows
+          .map((f: any) => f?.UserName)
+          .filter((u: any) => typeof u === "string" && u.length > 0)
+          .map((username: string) => ({
+            username,
+            href: `https://www.tiktok.com/@${username}`,
           }));
 
-        const nonFollowers = followingList.filter(
-          (f: any) => !followersSet.has(f.username)
+        page.setResults(
+          followingList.filter(
+            (f) => !followersSet.has(f.username.toLowerCase())
+          )
         );
-
-        // Store globally for bulk actions
-        currentNonFollowers = nonFollowers;
-
-        console.log("Non-Followers:", nonFollowers);
-
-        const totalToUnfollow = nonFollowers.length;
-        const totalEl = document.getElementById("total-to-unfollow");
-        if (totalEl) {
-          totalEl.textContent =
-            totalToUnfollow > 0
-              ? `Found ${totalToUnfollow} ${totalToUnfollow === 1 ? "person" : "people"} who don't follow you back`
-              : "Everyone you follow follows you back! 🎉";
-        }
-
-        // Reset to page 1 when new results come in
-        currentPage = 1;
-
-        const resultList = document.getElementById("resultList");
-        const bulkActions = document.getElementById("bulk-actions");
-        const paginationControls = document.getElementById(
-          "pagination-controls"
-        );
-        const itemsPerPageSelector = document.getElementById(
-          "items-per-page-selector"
-        );
-
-        if (!resultList) return;
-
-        resultList.innerHTML = "";
-
-        if (nonFollowers.length === 0) {
-          if (bulkActions) bulkActions.classList.add("hidden");
-          if (paginationControls) paginationControls.classList.add("hidden");
-          if (itemsPerPageSelector)
-            itemsPerPageSelector.classList.add("hidden");
-          resultList.innerHTML =
-            '<tr><td colspan="4" class="px-6 py-8 text-center text-sm text-gray-600 dark:text-gray-400">Everyone you follow follows you back! 🎉</td></tr>';
-        } else {
-          // Show bulk actions and pagination
-          if (bulkActions) bulkActions.classList.remove("hidden");
-          if (itemsPerPageSelector)
-            itemsPerPageSelector.classList.remove("hidden");
-          if (paginationControls) paginationControls.classList.remove("hidden");
-
-          renderPage();
-        }
       } catch (error) {
         console.error("Error processing TikTok data:", error);
-        const errorEl = document.getElementById("error-message");
-        if (errorEl) {
-          errorEl.textContent =
-            "Error processing data. Please make sure this is your TikTok user data JSON and it contains follower/following lists.";
-        }
-      }
-    };
-
-    (window as any).startUnfollowHelper = function () {
-      if (!currentNonFollowers.length) return;
-
-      const queue = currentNonFollowers.map((u) => ({ url: u.href }));
-
-      // Open ONE helper tab (anti popup-block)
-      const helperUrl = "/helper/launcher";
-      const helperWin = window.open(helperUrl, "_blank", "noopener,noreferrer");
-
-      // Persist data so the helper can pick it up (same-origin)
-      try {
-        localStorage.setItem(
-          "notfollow_helper_queue_v1",
-          JSON.stringify(queue)
+        setError(
+          "Error processing data. Please make sure this is your TikTok user data JSON and it contains follower/following lists."
         );
-        localStorage.setItem("notfollow_helper_index_v1", "0");
-      } catch (e) {
-        // ignore
-      }
-
-      // Update message
-      const totalEl = document.getElementById("total-to-unfollow");
-      if (totalEl) {
-        totalEl.textContent = `Helper started with ${queue.length} profiles. Use "Open Next" in the helper tab.`;
-      }
-
-      // If tab got blocked, instruct user
-      if (!helperWin) {
-        const errorEl = document.getElementById("error-message");
-        if (errorEl) {
-          errorEl.textContent =
-            "Popup blocked. Allow popups for this site to open the helper tab.";
-        }
-      }
-    };
-
-    function renderPage() {
-      const resultList = document.getElementById("resultList");
-      if (!resultList) return;
-
-      const totalItems = currentNonFollowers.length;
-      const totalPages = Math.ceil(totalItems / itemsPerPage);
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-      const pageItems = currentNonFollowers.slice(startIndex, endIndex);
-
-      resultList.innerHTML = "";
-      pageItems.forEach((user, pageIndex) => {
-        const globalIndex = startIndex + pageIndex;
-        const tr = document.createElement("tr");
-        tr.className =
-          "bg-white dark:bg-gray-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors";
-        tr.innerHTML = `
-          <td class="w-16 px-4 py-2 text-center text-gray-900 dark:text-gray-100">${globalIndex + 1}</td>
-          <td class="px-4 py-2 font-medium min-w-0">
-            <a href="${user.href}" target="_blank" rel="noopener noreferrer" class="block text-black dark:text-white hover:underline truncate" title="${user.username}">
-              ${user.username}
-            </a>
-          </td>
-        `;
-        resultList.appendChild(tr);
-      });
-
-      // Update pagination info
-      const paginationInfo = document.getElementById("pagination-info");
-      if (paginationInfo) {
-        paginationInfo.textContent = `Showing ${startIndex + 1} to ${endIndex} of ${totalItems}`;
-      }
-
-      // Update pagination buttons
-      const prevButton = document.getElementById(
-        "prev-page"
-      ) as HTMLButtonElement;
-      const nextButton = document.getElementById(
-        "next-page"
-      ) as HTMLButtonElement;
-
-      if (prevButton) {
-        prevButton.disabled = currentPage === 1;
-      }
-      if (nextButton) {
-        nextButton.disabled = currentPage === totalPages;
-      }
-
-      // Render page numbers
-      renderPageNumbers(totalPages);
-    }
-
-    function renderPageNumbers(totalPages: number) {
-      const pageNumbersContainer = document.getElementById("page-numbers");
-      if (!pageNumbersContainer) return;
-
-      pageNumbersContainer.innerHTML = "";
-
-      // Show max 5 page numbers at a time
-      let startPage = Math.max(1, currentPage - 2);
-      let endPage = Math.min(totalPages, startPage + 4);
-
-      // Adjust if we're near the end
-      if (endPage - startPage < 4) {
-        startPage = Math.max(1, endPage - 4);
-      }
-
-      // First page
-      if (startPage > 1) {
-        pageNumbersContainer.appendChild(createPageButton(1));
-        if (startPage > 2) {
-          const ellipsis = document.createElement("span");
-          ellipsis.className = "px-2 text-xs text-gray-600 dark:text-gray-400";
-          ellipsis.textContent = "...";
-          pageNumbersContainer.appendChild(ellipsis);
-        }
-      }
-
-      // Page numbers
-      for (let i = startPage; i <= endPage; i++) {
-        pageNumbersContainer.appendChild(createPageButton(i));
-      }
-
-      // Last page
-      if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-          const ellipsis = document.createElement("span");
-          ellipsis.className = "px-2 text-xs text-gray-600 dark:text-gray-400";
-          ellipsis.textContent = "...";
-          pageNumbersContainer.appendChild(ellipsis);
-        }
-        pageNumbersContainer.appendChild(createPageButton(totalPages));
-      }
-    }
-
-    function createPageButton(pageNum: number) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = pageNum.toString();
-      button.onclick = () => (window as any).goToPage(pageNum);
-
-      if (pageNum === currentPage) {
-        button.className =
-          "w-8 h-8 border border-zinc-800 dark:border-zinc-200 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-medium transition-all";
-      } else {
-        button.className =
-          "w-8 h-8 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg text-xs font-medium text-black dark:text-white hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all";
-      }
-
-      return button;
-    }
-
-    (window as any).goToPage = function (page: number) {
-      currentPage = page;
-      renderPage();
-    };
-
-    (window as any).previousPage = function () {
-      if (currentPage > 1) {
-        currentPage--;
-        renderPage();
-      }
-    };
-
-    (window as any).nextPage = function () {
-      const totalPages = Math.ceil(currentNonFollowers.length / itemsPerPage);
-      if (currentPage < totalPages) {
-        currentPage++;
-        renderPage();
-      }
-    };
-
-    (window as any).changeItemsPerPage = function () {
-      const select = document.getElementById(
-        "itemsPerPage"
-      ) as HTMLSelectElement;
-      if (select) {
-        itemsPerPage = parseInt(select.value);
-        currentPage = 1; // Reset to first page
-        renderPage();
       }
     };
   </script>

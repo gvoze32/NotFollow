@@ -1,0 +1,30 @@
+---
+type Props = {
+  id: string;
+  label: string;
+  accept: string;
+  hint: string;
+  multiple?: boolean;
+};
+
+const { id, label, accept, hint, multiple = false } = Astro.props;
+---
+
+<div class="mb-4">
+  <label
+    for={id}
+    class="block mb-2 text-sm font-medium text-black dark:text-white"
+  >
+    {label}
+  </label>
+  <input
+    class="block w-full text-sm text-gray-900 dark:text-gray-400 border border-zinc-300 dark:border-zinc-700 rounded-lg cursor-pointer bg-white dark:bg-gray-900 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black dark:file:bg-white file:text-white dark:file:text-black hover:file:bg-black/90 dark:hover:file:bg-white/90"
+    id={id}
+    accept={accept}
+    type="file"
+    multiple={multiple}
+  />
+  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+    {hint}
+  </p>
+</div>

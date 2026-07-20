@@ -1,0 +1,53 @@
+---
+type Props = {
+  howToLabel?: string;
+};
+
+const { howToLabel = "How to Get Files" } = Astro.props;
+---
+
+<section class="pb-8 px-4 bg-white dark:bg-gray-950">
+  <div class="max-w-2xl mx-auto">
+    <div id="error-message" class="mb-4 text-sm text-red-600 dark:text-red-400">
+    </div>
+
+    <div
+      class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl p-6 mb-4"
+    >
+      <slot />
+
+      <div class="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onclick="processFiles()"
+          class="inline-flex items-center gap-2 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"></path>
+          </svg>
+          Check Non-Followers
+        </button>
+        <button
+          type="button"
+          data-modal-target="howToModal"
+          data-modal-toggle="howToModal"
+          class="inline-flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          {howToLabel}
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
