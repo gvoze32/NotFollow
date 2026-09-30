@@ -1,8 +1,7 @@
 // Shared client-side logic for the platform NotFollow pages
 // (instagram/tiktok/x). Each page parses its own export format and hands the
-// full non-followers list to `setResults()`; everything else — hidden-account
-// whitelist, pagination, rendering, and the unfollow helper hand-off — lives
-// here so it stays identical across platforms.
+// full non-followers list to `setResults()`; hidden-account state, pagination,
+// rendering, and result search live here so behavior stays consistent.
 
 export type Account = { username: string; href: string };
 
@@ -59,6 +58,7 @@ export function createNotFollowPage(opts: { hiddenKey: string }) {
   let currentNonFollowers: Account[] = [];
   let currentPage = 1;
   let itemsPerPage = 10;
+  let searchQuery = "";
 
   function loadHidden(): Set<string> {
     try {
@@ -88,65 +88,90 @@ export function createNotFollowPage(opts: { hiddenKey: string }) {
     if (resetBtn) resetBtn.classList.toggle("hidden", hiddenCount === 0);
   }
 
+  function getSearchMatches(): { account: Account; originalIndex: number }[] {
+    const query = searchQuery.trim().toLowerCase();
+    const matches: { account: Account; originalIndex: number }[] = [];
+
+    currentNonFollowers.forEach((account, originalIndex) => {
+      if (!query || account.username.toLowerCase().includes(query)) {
+        matches.push({ account, originalIndex });
+      }
+    });
+
+    return matches;
+  }
+
   function refreshResults() {
     applyHidden();
+    renderResults();
+  }
+
+  function renderResults() {
 
     const nonFollowers = currentNonFollowers;
+    const matches = getSearchMatches();
     const hiddenCount = allNonFollowers.length - nonFollowers.length;
-
-    const totalToUnfollow = nonFollowers.length;
     const totalEl = document.getElementById("total-to-unfollow");
     if (totalEl) {
       const hiddenSuffix = hiddenCount > 0 ? ` (${hiddenCount} hidden)` : "";
+      const query = searchQuery.trim();
       totalEl.textContent =
-        totalToUnfollow > 0
-          ? `Found ${totalToUnfollow} ${totalToUnfollow === 1 ? "person" : "people"} who don't follow you back${hiddenSuffix}`
-          : hiddenCount > 0
-            ? `No accounts to show — ${hiddenCount} hidden`
-            : "Everyone you follow follows you back! 🎉";
+        query && nonFollowers.length > 0
+          ? `${matches.length} of ${nonFollowers.length} people who don't follow you back match "${query}"${hiddenSuffix}`
+          : nonFollowers.length > 0
+            ? `Found ${nonFollowers.length} ${nonFollowers.length === 1 ? "person" : "people"} who don't follow you back${hiddenSuffix}`
+            : hiddenCount > 0
+              ? `No accounts to show — ${hiddenCount} hidden`
+              : "Everyone you follow follows you back! 🎉";
     }
 
     const resultList = document.getElementById("resultList");
-    const bulkActions = document.getElementById("bulk-actions");
+    const searchControls = document.getElementById("result-search-controls");
     const paginationControls = document.getElementById("pagination-controls");
     const itemsPerPageSelector = document.getElementById(
       "items-per-page-selector"
     );
 
+    searchControls?.classList.toggle("hidden", nonFollowers.length === 0);
     if (!resultList) return;
 
     resultList.innerHTML = "";
 
-    if (nonFollowers.length === 0) {
-      bulkActions?.classList.add("hidden");
+    if (matches.length === 0) {
       paginationControls?.classList.add("hidden");
       itemsPerPageSelector?.classList.add("hidden");
-      resultList.innerHTML = `<tr><td colspan="3" class="px-6 py-8 text-center text-sm text-gray-600 dark:text-gray-400">${
-        hiddenCount > 0
-          ? "No accounts to show — all remaining accounts are hidden."
-          : "Everyone you follow follows you back! 🎉"
-      }</td></tr>`;
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 3;
+      cell.className =
+        "px-6 py-8 text-center text-sm text-gray-600 dark:text-gray-400";
+      cell.textContent =
+        nonFollowers.length > 0
+          ? `No usernames match "${searchQuery.trim()}".`
+          : hiddenCount > 0
+            ? "No accounts to show — all remaining accounts are hidden."
+            : "Everyone you follow follows you back! 🎉";
+      row.appendChild(cell);
+      resultList.appendChild(row);
     } else {
-      bulkActions?.classList.remove("hidden");
       itemsPerPageSelector?.classList.remove("hidden");
       paginationControls?.classList.remove("hidden");
-      renderPage();
+      renderPage(matches);
     }
   }
 
-  function renderPage() {
+  function renderPage(matches = getSearchMatches()) {
     const resultList = document.getElementById("resultList");
     if (!resultList) return;
 
-    const totalItems = currentNonFollowers.length;
+    const totalItems = matches.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-    const pageItems = currentNonFollowers.slice(startIndex, endIndex);
-
+    const pageItems = matches.slice(startIndex, endIndex);
     resultList.innerHTML = "";
-    pageItems.forEach((user, pageIndex) => {
+    pageItems.forEach(({ account: user, originalIndex }, pageIndex) => {
       const globalIndex = startIndex + pageIndex;
       const tr = document.createElement("tr");
       tr.className =
@@ -159,7 +184,7 @@ export function createNotFollowPage(opts: { hiddenKey: string }) {
           </a>
         </td>
         <td class="w-20 px-4 py-2 text-center">
-          <button type="button" onclick="hideUser(${globalIndex})" title="Hide this account (e.g. deactivated) — excluded from future checks" class="text-xs border border-zinc-300 dark:border-zinc-700 rounded-md px-2 py-1 text-gray-600 dark:text-gray-400 hover:border-zinc-800 dark:hover:border-zinc-200 hover:text-black dark:hover:text-white transition-all">
+          <button type="button" onclick="hideUser(${originalIndex})" title="Hide this account (e.g. deactivated) — excluded from future checks" class="text-xs border border-zinc-300 dark:border-zinc-700 rounded-md px-2 py-1 text-gray-600 dark:text-gray-400 hover:border-zinc-800 dark:hover:border-zinc-200 hover:text-black dark:hover:text-white transition-all">
             Hide
           </button>
         </td>
@@ -272,7 +297,7 @@ export function createNotFollowPage(opts: { hiddenKey: string }) {
   };
 
   w.nextPage = () => {
-    const totalPages = Math.ceil(currentNonFollowers.length / itemsPerPage);
+    const totalPages = Math.ceil(getSearchMatches().length / itemsPerPage);
     if (currentPage < totalPages) {
       currentPage++;
       renderPage();
@@ -289,47 +314,26 @@ export function createNotFollowPage(opts: { hiddenKey: string }) {
       renderPage();
     }
   };
-
-  w.startUnfollowHelper = () => {
-    if (!currentNonFollowers.length) return;
-
-    // Build a simple queue the helper can consume
-    const queue = currentNonFollowers.map((u) => ({
-      url: u.href,
-      username: u.username,
-      hideKey: hiddenKey,
-    }));
-
-    // Open ONE helper tab (anti popup-block)
-    const helperWin = window.open(
-      "/helper/launcher",
-      "_blank",
-      "noopener,noreferrer"
-    );
-
-    // Persist data so the helper can pick it up (same-origin)
-    try {
-      localStorage.setItem("notfollow_helper_queue_v1", JSON.stringify(queue));
-      localStorage.setItem("notfollow_helper_index_v1", "0");
-    } catch {}
-
-    const totalEl = document.getElementById("total-to-unfollow");
-    if (totalEl) {
-      totalEl.textContent = `Helper started with ${queue.length} profiles. Use "Open Next" in the helper tab.`;
-    }
-
-    if (!helperWin) {
-      setError(
-        "Popup blocked. Allow popups for this site to open the helper tab."
-      );
-    }
+  w.filterResults = () => {
+    const input = document.getElementById(
+      "result-search"
+    ) as HTMLInputElement | null;
+    searchQuery = input?.value.trim() || "";
+    currentPage = 1;
+    renderResults();
   };
+
 
   return {
     /** Replace the full (unfiltered) non-followers list and re-render. */
     setResults(list: Account[]) {
       allNonFollowers = list;
       currentPage = 1;
+      searchQuery = "";
+      const input = document.getElementById(
+        "result-search"
+      ) as HTMLInputElement | null;
+      if (input) input.value = "";
       refreshResults();
     },
   };

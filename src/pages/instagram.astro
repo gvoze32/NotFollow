@@ -64,7 +64,11 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
 
     onFileChange("followersFile", (content) => {
       try {
-        followersData.push(JSON.parse(content));
+        const data = JSON.parse(content);
+        if (!Array.isArray(data)) {
+          throw new Error("Followers JSON must contain an array.");
+        }
+        followersData.push(data);
         setError("");
       } catch (error) {
         console.error("Error parsing followers file:", error);
@@ -76,7 +80,11 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
 
     onFileChange("followingFile", (content) => {
       try {
-        followingData.push(JSON.parse(content));
+        const data = JSON.parse(content);
+        if (!Array.isArray(data?.relationships_following)) {
+          throw new Error("Following JSON must contain relationships_following.");
+        }
+        followingData.push(data);
         setError("");
       } catch (error) {
         console.error("Error parsing following file:", error);

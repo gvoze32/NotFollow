@@ -68,7 +68,6 @@ import PageHero from "../components/PageHero.astro";
                 subtitleId="total-count"
                 subtitleDefault="Enter a username to check"
                 itemsPerPageSelectorId="items-per-page-selector"
-                bulkActionsId="bulk-actions"
                 paginationControlsId="pagination-controls"
                 paginationInfoId="pagination-info"
                 pageNumbersId="page-numbers"
@@ -80,27 +79,6 @@ import PageHero from "../components/PageHero.astro";
                 itemsPerPageOnChange="changeItemsPerPage()"
                 containerClass="max-w-2xl"
             >
-                <button
-                    slot="bulk-actions"
-                    type="button"
-                    onclick="startUnfollowHelper()"
-                    class="inline-flex items-center gap-2 text-xs border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-2.5 py-1.5 hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 font-medium text-black dark:text-white transition-all"
-                >
-                    <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 5l7 7-7 7"></path>
-                    </svg>
-                    Start Unfollow Helper
-                </button>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm table-fixed">
@@ -149,9 +127,12 @@ import PageHero from "../components/PageHero.astro";
             html_url: string;
         }
 
+        let allUsers: GitHubUser[] = [];
         let currentUsers: GitHubUser[] = [];
         let currentPage = 1;
         let itemsPerPage = 10;
+        let searchQuery = "";
+        let resultActionText = "";
 
         async function fetchAllPages(url: string): Promise<GitHubUser[]> {
             let allData: GitHubUser[] = [];
@@ -186,11 +167,14 @@ import PageHero from "../components/PageHero.astro";
 
             const errorEl = document.getElementById("error-message");
             if (errorEl) errorEl.textContent = "";
+            document
+                .getElementById("result-search-controls")
+                ?.classList.add("hidden");
 
             const resultList = document.getElementById("resultList");
             if (resultList) {
                 resultList.innerHTML =
-                    '<tr><td colspan="4" class="px-6 py-4 text-center">Loading...</td></tr>';
+                    '<tr><td colspan="3" class="px-6 py-4 text-center">Loading...</td></tr>';
             }
 
             const captionEl = document.getElementById("result-caption");
@@ -240,11 +224,14 @@ import PageHero from "../components/PageHero.astro";
 
             const errorEl = document.getElementById("error-message");
             if (errorEl) errorEl.textContent = "";
+            document
+                .getElementById("result-search-controls")
+                ?.classList.add("hidden");
 
             const resultList = document.getElementById("resultList");
             if (resultList) {
                 resultList.innerHTML =
-                    '<tr><td colspan="4" class="px-6 py-4 text-center">Loading...</td></tr>';
+                    '<tr><td colspan="3" class="px-6 py-4 text-center">Loading...</td></tr>';
             }
 
             const captionEl = document.getElementById("result-caption");
@@ -281,19 +268,49 @@ import PageHero from "../components/PageHero.astro";
         };
 
         function displayResults(users: GitHubUser[], actionText: string) {
+            allUsers = users;
             currentUsers = users;
             currentPage = 1;
+            searchQuery = "";
+            resultActionText = actionText;
 
+            const searchInput = document.getElementById(
+                "result-search",
+            ) as HTMLInputElement | null;
+            if (searchInput) searchInput.value = "";
+            renderResults();
+        }
+
+        (window as any).filterResults = function () {
+            const searchInput = document.getElementById(
+                "result-search",
+            ) as HTMLInputElement | null;
+            searchQuery = searchInput?.value.trim() || "";
+            const query = searchQuery.toLowerCase();
+            currentUsers = allUsers.filter((user) =>
+                user.login.toLowerCase().includes(query),
+            );
+            currentPage = 1;
+            renderResults();
+        };
+
+        function renderResults() {
             const totalCount = document.getElementById("total-count");
             if (totalCount) {
                 totalCount.textContent =
-                    users.length > 0
-                        ? `${actionText}: ${users.length}`
-                        : "No users found";
+                    currentUsers.length > 0
+                        ? searchQuery
+                            ? `${resultActionText}: ${currentUsers.length} of ${allUsers.length}`
+                            : `${resultActionText}: ${allUsers.length}`
+                        : allUsers.length > 0
+                            ? `No usernames match "${searchQuery}"`
+                            : "No users found";
             }
 
             const resultList = document.getElementById("resultList");
-            const bulkActions = document.getElementById("bulk-actions");
+            const searchControls = document.getElementById(
+                "result-search-controls",
+            );
             const paginationControls = document.getElementById(
                 "pagination-controls",
             );
@@ -301,67 +318,32 @@ import PageHero from "../components/PageHero.astro";
                 "items-per-page-selector",
             );
 
+            searchControls?.classList.toggle("hidden", allUsers.length === 0);
             if (!resultList) return;
 
             resultList.innerHTML = "";
 
-            if (users.length === 0) {
-                if (bulkActions) bulkActions.classList.add("hidden");
-                if (paginationControls)
-                    paginationControls.classList.add("hidden");
-                if (itemsPerPageSelector)
-                    itemsPerPageSelector.classList.add("hidden");
-                resultList.innerHTML =
-                    '<tr><td colspan="4" class="px-6 py-8 text-center text-sm text-gray-600 dark:text-gray-400">No users found</td></tr>';
+            if (currentUsers.length === 0) {
+                paginationControls?.classList.add("hidden");
+                itemsPerPageSelector?.classList.add("hidden");
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+                cell.colSpan = 3;
+                cell.className =
+                    "px-6 py-8 text-center text-sm text-gray-600 dark:text-gray-400";
+                cell.textContent =
+                    allUsers.length > 0
+                        ? `No usernames match "${searchQuery}".`
+                        : "No users found";
+                row.appendChild(cell);
+                resultList.appendChild(row);
             } else {
-                if (bulkActions) bulkActions.classList.remove("hidden");
-                if (itemsPerPageSelector)
-                    itemsPerPageSelector.classList.remove("hidden");
-                if (paginationControls)
-                    paginationControls.classList.remove("hidden");
-
+                itemsPerPageSelector?.classList.remove("hidden");
+                paginationControls?.classList.remove("hidden");
                 renderPage();
             }
         }
 
-        (window as any).startUnfollowHelper = function () {
-            if (!currentUsers.length) return;
-
-            const queue = currentUsers.map((u) => ({ url: u.html_url }));
-
-            // Open ONE helper tab (anti popup-block)
-            const helperUrl = "/helper/launcher";
-            const helperWin = window.open(
-                helperUrl,
-                "_blank",
-                "noopener,noreferrer",
-            );
-
-            // Persist data so the helper can pick it up (same-origin)
-            try {
-                localStorage.setItem(
-                    "notfollow_helper_queue_v1",
-                    JSON.stringify(queue),
-                );
-                localStorage.setItem("notfollow_helper_index_v1", "0");
-            } catch (e) {
-                // ignore
-            }
-
-            // If tab got blocked, instruct user
-            if (!helperWin) {
-                const errorEl = document.getElementById("error-message");
-                if (errorEl) {
-                    errorEl.textContent =
-                        "Popup blocked. Allow popups for this site to open the helper tab.";
-                }
-            }
-
-            const totalEl = document.getElementById("total-count");
-            if (totalEl) {
-                totalEl.textContent = `Helper started with ${queue.length} profiles. Use "Open Next" in the helper tab.`;
-            }
-        };
 
         function renderPage() {
             const resultList = document.getElementById("resultList");

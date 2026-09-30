@@ -8,8 +8,7 @@ A modern web application built with Astro to help you identify people who don't 
 - **Modern UI**: Beautiful dark mode with glassmorphism effects and smooth animations
 - **Fast Performance**: Built with Astro for optimal loading speeds
 - **Privacy First**: All processing happens client-side - your data never leaves your browser
-- **Pagination**: Efficiently browse through large follower lists
-- **Bulk Actions**: Open multiple profiles at once with confirmation
+- **Search Results**: Quickly filter account usernames in any results list
 - **Responsive Design**: Works perfectly on desktop and mobile devices
 
 ## 🎯 Supported Platforms
@@ -111,7 +110,7 @@ All commands are run from the root of the project, from a terminal:
 3. Upload the files:
    - Upload `followers_*.json` files (can be multiple)
    - Upload `following.json` file
-
+   - If a file is selected in the wrong field, choose the correct file; the mismatched JSON is rejected, so no refresh is needed.
 4. Click "Check Non-Followers"
 
 ### TikTok
@@ -157,9 +156,9 @@ All commands are run from the root of the project, from a terminal:
 - Page numbers with ellipsis for large datasets
 - Previous/Next navigation
 
-### Bulk Actions
-- **Open All**: Opens all profiles in separate tabs (with confirmation)
-- Sequential opening with delay to avoid browser popup blocking
+### Search Results
+- Filter usernames instantly across platform result lists
+- Search restarts pagination from the first matching result
 
 ### Mark as Unfollowed
 - Checkbox to track who you've unfollowed
@@ -236,7 +235,6 @@ The build output will be in `./dist/` directory, ready to deploy to:
 
 ## 🐛 Known Limitations
 
-- **Browser popup blockers**: "Open All" feature may be limited by browser security
 - **API rate limits**: GitHub API has rate limits (60 requests/hour for unauthenticated)
 - **Large datasets**: Very large follower lists (10,000+) may slow down processing
 

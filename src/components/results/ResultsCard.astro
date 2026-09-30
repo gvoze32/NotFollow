@@ -7,8 +7,6 @@ type Props = {
     /** Optional id for the "items per page" wrapper (so existing JS can show/hide it) */
     itemsPerPageSelectorId?: string;
 
-    /** Optional id for the "bulk actions" wrapper (so existing JS can show/hide it) */
-    bulkActionsId?: string;
 
     /** Optional id for the pagination wrapper (so existing JS can show/hide it) */
     paginationControlsId?: string;
@@ -47,7 +45,6 @@ const {
     subtitleDefault = "Upload data to see results",
 
     itemsPerPageSelectorId = "items-per-page-selector",
-    bulkActionsId = "bulk-actions",
 
     paginationControlsId = "pagination-controls",
     paginationInfoId = "pagination-info",
@@ -72,14 +69,13 @@ const {
         <div
             class={`border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl overflow-hidden ${cardClass}`}
         >
-            <!-- Header (helper-style) -->
+            <!-- Results summary -->
             <div class="p-4 border-b border-zinc-200 dark:border-zinc-800">
                 <div class="flex items-center justify-between flex-wrap gap-3 mb-2">
                     <h2 class="text-lg font-semibold text-black dark:text-white">
                         {title}
                     </h2>
 
-                    <div class="flex items-center gap-2">
                         {showItemsPerPage && (
                             <div id={itemsPerPageSelectorId} class="hidden">
                                 <label
@@ -102,18 +98,28 @@ const {
                             </div>
                         )}
 
-                        <div id={bulkActionsId} class="hidden">
-                            <slot name="bulk-actions" />
-                        </div>
-                    </div>
                 </div>
 
                 <p id={subtitleId} class="text-sm text-gray-600 dark:text-gray-400">
                     {subtitleDefault}
                 </p>
             </div>
+            <div
+                id="result-search-controls"
+                class="hidden px-4 py-3 border-b border-zinc-200 dark:border-zinc-800"
+            >
+                <label for="result-search" class="sr-only">Search usernames</label>
+                <input
+                    id="result-search"
+                    type="search"
+                    placeholder="Search usernames…"
+                    autocomplete="off"
+                    oninput="filterResults()"
+                    class="block w-full max-w-sm text-sm text-gray-900 dark:text-gray-200 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-gray-900 px-3 py-2 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200"
+                />
+            </div>
 
-            <!-- Pagination (helper-style, placed ABOVE table) -->
+            <!-- Pagination controls -->
             <div
                 id={paginationControlsId}
                 class="hidden p-4 border-b border-zinc-200 dark:border-zinc-800"
