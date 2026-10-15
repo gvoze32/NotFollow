@@ -43,87 +43,52 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
   />
 
   <script>
-    import {
-      createNotFollowPage,
-      initModals,
-      onFileChange,
-      setError,
-      type Account,
-    } from "../scripts/notfollow-page";
+    import { createResultsView, setError } from "../scripts/results";
+    import { at, bindFileInput, onCheck, parseJson } from "../scripts/upload";
 
-    initModals();
-
-    const page = createNotFollowPage({
+    const results = createResultsView({
       hiddenKey: "notfollow_hidden_x_v1",
     });
 
-    let followersData: any[] = [];
-    let followingData: any[] = [];
+    // Archive files look like `window.YTD.follower.part0 = [{ "follower": { "accountId": … } }]`.
+    function parseArchiveFile(text: string, key: "follower" | "following"): string[] {
+      const wrongFile = new Error(`expected ${key}.js from your X archive`);
+      const start = text.indexOf("[");
+      const end = text.lastIndexOf("]");
+      if (start === -1 || end < start) throw wrongFile;
 
-    function parseTwitterJSFile(content: string): any[] {
-      // Twitter exports look like: window.YTD.follower.part0 = [ ... ]
-      const jsonStart = content.indexOf("[");
-      const jsonEnd = content.lastIndexOf("]") + 1;
-
-      if (jsonStart === -1 || jsonEnd === 0) {
-        throw new Error("Could not find JSON array in file");
-      }
-
-      return JSON.parse(content.substring(jsonStart, jsonEnd));
+      const entries = parseJson(text.slice(start, end + 1));
+      if (!Array.isArray(entries)) throw wrongFile;
+      return entries.map((entry) => {
+        const accountId = at(entry, key, "accountId");
+        if (typeof accountId !== "string" && typeof accountId !== "number") throw wrongFile;
+        return String(accountId);
+      });
     }
 
-    onFileChange("followersFile", (content) => {
-      try {
-        followersData = parseTwitterJSFile(content);
-        setError("");
-      } catch (error) {
-        console.error("Error parsing followers file:", error);
-        setError(
-          "Error parsing followers file. Please make sure it is in the correct format."
-        );
-      }
-    });
+    const getFollowers = bindFileInput("followersFile", "followers file", ([text]) =>
+      parseArchiveFile(text, "follower")
+    );
+    const getFollowing = bindFileInput("followingFile", "following file", ([text]) =>
+      parseArchiveFile(text, "following")
+    );
 
-    onFileChange("followingFile", (content) => {
-      try {
-        followingData = parseTwitterJSFile(content);
-        setError("");
-      } catch (error) {
-        console.error("Error parsing following file:", error);
-        setError(
-          "Error parsing following file. Please make sure it is in the correct format."
-        );
-      }
-    });
+    onCheck(() => {
+      const followers = getFollowers();
+      const following = getFollowing();
+      if (!followers) return setError("Please upload your follower.js file.");
+      if (!following) return setError("Please upload your following.js file.");
+      setError("");
 
-    (window as any).processFiles = function () {
-      if (!followersData.length || !followingData.length) {
-        setError("Please upload both followers and following files.");
-        return;
-      }
-
-      // Twitter format: [{ "follower": { "accountId": "...", "userLink": "..." } }]
-      const followersSet = new Set<string>();
-      followersData.forEach((entry: any) => {
-        if (entry?.follower?.accountId) {
-          followersSet.add(String(entry.follower.accountId).toLowerCase());
-        }
-      });
-
-      const followingList: Account[] = [];
-      followingData.forEach((entry: any) => {
-        if (entry?.following?.accountId) {
-          const accountId = entry.following.accountId;
-          followingList.push({
+      const followerIds = new Set(followers);
+      results.setResults(
+        following
+          .filter((accountId) => !followerIds.has(accountId))
+          .map((accountId) => ({
             username: accountId,
             href: `https://twitter.com/intent/user?user_id=${accountId}`,
-          });
-        }
-      });
-
-      page.setResults(
-        followingList.filter((f) => !followersSet.has(f.username.toLowerCase()))
+          }))
       );
-    };
+    });
   </script>
 </Layout>

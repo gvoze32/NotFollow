@@ -20,19 +20,17 @@ A modern web application built with Astro to help you identify people who don't 
 
 ### ✅ TikTok
 - Upload single `user_data_tiktok.json` file
-- Shows username and follow date
 - Direct links to TikTok profiles
 
 ### ✅ GitHub
 - No file upload required - just enter username
 - Fetches data directly from GitHub API
-- Two modes: Check who doesn't follow you back & Check who you don't follow back
-- Shows avatar and profile information
+- Shows who doesn't follow back, with avatars
 
 ### ✅ X (Twitter)
 - Upload `follower.js` and `following.js` files from Twitter data export
 - Parses JavaScript files automatically
-- Links to Twitter profiles
+- Lists account IDs (the archive has no usernames) linking to each X profile
 
 ## 🛠️ Tech Stack
 
@@ -48,8 +46,9 @@ A modern web application built with Astro to help you identify people who don't 
 ├── public/             # Static assets
 ├── src/
 │   ├── components/     # Reusable UI components
-│   │   ├── Navbar.astro
-│   │   └── Footer.astro
+│   │   ├── Navbar.astro, Footer.astro, PageHero.astro, HowToModal.astro
+│   │   ├── results/    # ResultsCard + NonFollowersResults (results list markup)
+│   │   └── upload/     # UploadCard + FileInput
 │   ├── layouts/        # Page layouts
 │   │   └── Layout.astro
 │   ├── pages/          # Routes (file-based routing)
@@ -58,6 +57,9 @@ A modern web application built with Astro to help you identify people who don't 
 │   │   ├── tiktok.astro     # TikTok checker
 │   │   ├── github.astro     # GitHub checker
 │   │   └── x.astro          # X/Twitter checker
+│   ├── scripts/        # Shared client-side logic
+│   │   ├── results.ts  # Results list: search, pagination, hidden accounts
+│   │   └── upload.ts   # File input parsing + "Check Non-Followers" wiring
 │   └── styles/         # Global styles
 │       └── global.css
 └── package.json
@@ -127,13 +129,9 @@ All commands are run from the root of the project, from a terminal:
 
 ### GitHub
 
-1. Simply enter any GitHub username (including your own)
+1. Enter any GitHub username (including your own) and press Enter or click "Check Non-Followers"
 
-2. Choose your check mode:
-   - **Check who doesn't follow you back**
-   - **Check who you don't follow back**
-
-3. Results are fetched directly from GitHub API
+2. Results are fetched directly from GitHub API
 
 ### X (Twitter)
 
@@ -160,10 +158,10 @@ All commands are run from the root of the project, from a terminal:
 - Filter usernames instantly across platform result lists
 - Search restarts pagination from the first matching result
 
-### Mark as Unfollowed
-- Checkbox to track who you've unfollowed
-- Visual strikethrough effect
-- Auto-check when clicking profile links
+### Hide Accounts
+- Hide accounts you don't want listed (e.g. deactivated profiles) on Instagram, TikTok, and X
+- Hidden accounts are remembered per platform in localStorage
+- "Reset hidden" brings them all back
 
 ### Dark Mode
 - Default: Dark mode enabled
@@ -176,10 +174,11 @@ All commands are run from the root of the project, from a terminal:
 ### Adding a New Platform
 
 1. Create a new page in `src/pages/[platform].astro`
-2. Copy the structure from an existing platform page
-3. Customize the parsing logic for the platform's JSON format
-4. Update navigation in `src/components/Navbar.astro`
-5. Add platform card in `src/pages/index.astro`
+2. Copy the structure from an existing upload page (`UploadCard`, `FileInput`, `NonFollowersResults`)
+3. Parse the export with `bindFileInput()` from `src/scripts/upload.ts`
+4. Pass the non-followers to `createResultsView().setResults()` from `src/scripts/results.ts`
+5. Update navigation in `src/components/Navbar.astro`
+6. Add platform card in `src/pages/index.astro`
 
 ### Customizing the Theme
 
@@ -220,7 +219,7 @@ The build output will be in `./dist/` directory, ready to deploy to:
 
 ## 🔒 Privacy & Security
 
-- **No data storage**: All processing happens in your browser
+- **No data upload**: All processing happens in your browser; only usernames you choose to hide are saved in localStorage
 - **No external API calls** (except GitHub which uses public API)
 - **No analytics or tracking**: Your activity is completely private
 - **Open source**: Code is transparent and auditable

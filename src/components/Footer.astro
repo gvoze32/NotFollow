@@ -1,12 +1,12 @@
 ---
-// Footer component with minimal ds1/ds2 style and copy-to-clipboard
+const ETH_ADDRESS = "0x98441fC52b473d2E8B246315F96701484e6353CC";
 ---
 
 <footer class="py-12 px-4 bg-white dark:bg-gray-950 border-t border-zinc-200 dark:border-zinc-800">
   <div class="max-w-2xl mx-auto">
     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
       <div class="text-sm text-gray-600 dark:text-gray-400 text-center md:text-left">
-        <span>© 2025 </span>
+        <span>© {new Date().getFullYear()} </span>
         <a
           href="https://github.com/gvoze32"
           target="_blank"
@@ -31,12 +31,13 @@
         </svg>
         <span class="hidden sm:inline">Support: </span>
         <button
+          id="copy-eth-address"
           type="button"
-          onclick="copyEthAddress()"
+          data-address={ETH_ADDRESS}
           class="text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-900 rounded font-mono hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           title="Click to copy full address"
         >
-          0x98441...6353CC
+          {`${ETH_ADDRESS.slice(0, 7)}...${ETH_ADDRESS.slice(-6)}`}
         </button>
       </div>
     </div>
@@ -57,43 +58,39 @@
 </footer>
 
 <script>
-  const FULL_ETH_ADDRESS = '0x98441fC52b473d2E8B246315F96701484e6353CC';
+  const button = document.getElementById("copy-eth-address");
+  const toast = document.getElementById("copy-toast");
+  let hideToastTimer: number | undefined;
 
-  (window as any).copyEthAddress = function() {
-    // Copy to clipboard
-    navigator.clipboard.writeText(FULL_ETH_ADDRESS).then(() => {
-      // Show toast
-      const toast = document.getElementById('copy-toast');
-      if (toast) {
-        toast.classList.remove('hidden');
+  // execCommand fallback for browsers/contexts without the async Clipboard API.
+  function copyWithTextarea(text: string): boolean {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      return document.execCommand("copy");
+    } finally {
+      textArea.remove();
+    }
+  }
 
-        // Hide after 2 seconds
-        setTimeout(() => {
-          toast.classList.add('hidden');
-        }, 2000);
-      }
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = FULL_ETH_ADDRESS;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        const toast = document.getElementById('copy-toast');
-        if (toast) {
-          toast.classList.remove('hidden');
-          setTimeout(() => {
-            toast.classList.add('hidden');
-          }, 2000);
-        }
-      } catch (err) {
-        console.error('Fallback copy failed:', err);
-      }
-      document.body.removeChild(textArea);
-    });
-  };
+  button?.addEventListener("click", async () => {
+    const address = button.dataset.address ?? "";
+    let copied: boolean;
+    try {
+      // Throws synchronously when navigator.clipboard is undefined (non-HTTPS).
+      await navigator.clipboard.writeText(address);
+      copied = true;
+    } catch {
+      copied = copyWithTextarea(address);
+    }
+    if (!copied || !toast) return;
+
+    toast.classList.remove("hidden");
+    clearTimeout(hideToastTimer);
+    hideToastTimer = window.setTimeout(() => toast.classList.add("hidden"), 2000);
+  });
 </script>

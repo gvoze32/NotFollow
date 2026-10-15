@@ -47,93 +47,58 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
   </HowToModal>
 
   <script>
-    import {
-      createNotFollowPage,
-      initModals,
-      onFileChange,
-      setError,
-      type Account,
-    } from "../scripts/notfollow-page";
+    import { createResultsView, setError } from "../scripts/results";
+    import { at, bindFileInput, onCheck, parseJson } from "../scripts/upload";
 
-    initModals();
-
-    const page = createNotFollowPage({
+    const results = createResultsView({
       hiddenKey: "notfollow_hidden_tiktok_v1",
     });
 
-    let userData: any = null;
+    // TikTok has shipped several export layouts; read usernames from the first
+    // list found, or return undefined when none of the paths exist.
+    function findUsernames(data: unknown, paths: string[][]): string[] | undefined {
+      for (const path of paths) {
+        const rows = at(data, ...path);
+        if (!Array.isArray(rows)) continue;
+        return rows
+          .map((row) => at(row, "UserName"))
+          .filter((u): u is string => typeof u === "string" && u.length > 0);
+      }
+    }
 
-    onFileChange("tiktokDataFile", (content) => {
-      try {
-        userData = JSON.parse(content);
-        setError("");
-      } catch (error) {
-        console.error("Error parsing TikTok data file:", error);
-        setError(
-          "Error parsing TikTok data file. Please make sure it is in the correct format."
+    const getUserData = bindFileInput("tiktokDataFile", "TikTok data file", ([text]) => {
+      const data = parseJson(text);
+      const followers = findUsernames(data, [
+        ["Profile", "Follower List", "FansList"],
+        ["Profile", "Follower", "FansList"],
+        ["Profile And Settings", "Follower", "FansList"],
+        ["Follower", "FansList"],
+      ]);
+      const following = findUsernames(data, [
+        ["Profile", "Following List", "Following"],
+        ["Profile", "Following", "Following"],
+        ["Profile And Settings", "Following", "Following"],
+        ["Following", "Following"],
+      ]);
+      if (!followers && !following) {
+        throw new Error(
+          "no follower/following lists found — export your data as JSON with Profile and Settings included"
         );
       }
+      return { followers: followers ?? [], following: following ?? [] };
     });
 
-    (window as any).processFiles = function () {
-      if (!userData) {
-        setError(
-          "Invalid JSON format. Please upload a valid TikTok user data file."
-        );
-        return;
-      }
+    onCheck(() => {
+      const userData = getUserData();
+      if (!userData) return setError("Please upload your TikTok user_data.json file.");
+      setError("");
 
-      try {
-        const asArray = (value: any) => (Array.isArray(value) ? value : []);
-
-        // Supports multiple TikTok export variants
-        const followerRows = asArray(
-          userData?.Profile?.["Follower List"]?.FansList ??
-            userData?.Profile?.Follower?.FansList ??
-            userData?.["Profile And Settings"]?.Follower?.FansList ??
-            userData?.Follower?.FansList
-        );
-
-        const followingRows = asArray(
-          userData?.Profile?.["Following List"]?.Following ??
-            userData?.Profile?.Following?.Following ??
-            userData?.["Profile And Settings"]?.Following?.Following ??
-            userData?.Following?.Following
-        );
-
-        // If neither array exists, the file is likely a different TikTok export or wrong file.
-        if (followerRows.length === 0 && followingRows.length === 0) {
-          throw new Error(
-            "TikTok data file structure not recognized: missing follower/following lists."
-          );
-        }
-
-        const followersSet = new Set(
-          followerRows
-            .map((f: any) => f?.UserName)
-            .filter((u: any) => typeof u === "string" && u.length > 0)
-            .map((u: string) => u.toLowerCase())
-        );
-
-        const followingList: Account[] = followingRows
-          .map((f: any) => f?.UserName)
-          .filter((u: any) => typeof u === "string" && u.length > 0)
-          .map((username: string) => ({
-            username,
-            href: `https://www.tiktok.com/@${username}`,
-          }));
-
-        page.setResults(
-          followingList.filter(
-            (f) => !followersSet.has(f.username.toLowerCase())
-          )
-        );
-      } catch (error) {
-        console.error("Error processing TikTok data:", error);
-        setError(
-          "Error processing data. Please make sure this is your TikTok user data JSON and it contains follower/following lists."
-        );
-      }
-    };
+      const followers = new Set(userData.followers.map((u) => u.toLowerCase()));
+      results.setResults(
+        userData.following
+          .filter((username) => !followers.has(username.toLowerCase()))
+          .map((username) => ({ username, href: `https://www.tiktok.com/@${username}` }))
+      );
+    });
   </script>
 </Layout>

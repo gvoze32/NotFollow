@@ -39,25 +39,6 @@ const {
                 flex-direction: column;
                 min-height: 100vh;
             }
-
-            .line-through {
-                text-decoration: line-through;
-            }
-
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .animate-fade-in-up {
-                animation: fadeInUp 0.6s ease-out forwards;
-            }
         </style>
     </head>
     <body
@@ -66,7 +47,8 @@ const {
         <slot />
 
         <script is:inline>
-            // Theme toggle functionality
+            // Theme toggle: the head script already synced the `dark` class with
+            // localStorage, so flip the class and persist the new value.
             var themeToggleDarkIcon = document.getElementById(
                 "theme-toggle-dark-icon",
             );
@@ -74,40 +56,25 @@ const {
                 "theme-toggle-light-icon",
             );
 
-            // Set initial icon state - default to dark mode
-            if (localStorage.getItem("color-theme") === "light") {
-                themeToggleDarkIcon.classList.remove("hidden");
-            } else {
+            // Show the icon for the theme the button switches to
+            if (document.documentElement.classList.contains("dark")) {
                 themeToggleLightIcon.classList.remove("hidden");
+            } else {
+                themeToggleDarkIcon.classList.remove("hidden");
             }
 
-            var themeToggleBtn = document.getElementById("theme-toggle");
-
-            themeToggleBtn.addEventListener("click", function () {
-                // Toggle icons
-                themeToggleDarkIcon.classList.toggle("hidden");
-                themeToggleLightIcon.classList.toggle("hidden");
-
-                // If set via localStorage previously
-                if (localStorage.getItem("color-theme")) {
-                    if (localStorage.getItem("color-theme") === "light") {
-                        document.documentElement.classList.add("dark");
-                        localStorage.setItem("color-theme", "dark");
-                    } else {
-                        document.documentElement.classList.remove("dark");
-                        localStorage.setItem("color-theme", "light");
-                    }
-                    // If NOT set via localStorage previously
-                } else {
-                    if (document.documentElement.classList.contains("dark")) {
-                        document.documentElement.classList.remove("dark");
-                        localStorage.setItem("color-theme", "light");
-                    } else {
-                        document.documentElement.classList.add("dark");
-                        localStorage.setItem("color-theme", "dark");
-                    }
-                }
-            });
+            document
+                .getElementById("theme-toggle")
+                .addEventListener("click", function () {
+                    themeToggleDarkIcon.classList.toggle("hidden");
+                    themeToggleLightIcon.classList.toggle("hidden");
+                    var isDark =
+                        document.documentElement.classList.toggle("dark");
+                    localStorage.setItem(
+                        "color-theme",
+                        isDark ? "dark" : "light",
+                    );
+                });
         </script>
     </body>
 </html>

@@ -23,7 +23,8 @@ import PageHero from "../components/PageHero.astro";
             >
             </div>
 
-            <div
+            <form
+                id="github-form"
                 class="border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-xl p-6 mb-4"
             >
                 <div class="mb-4">
@@ -38,13 +39,15 @@ import PageHero from "../components/PageHero.astro";
                         id="username"
                         placeholder="e.g. octocat"
                         type="text"
+                        autocomplete="off"
+                        autocapitalize="off"
+                        spellcheck="false"
                     />
                 </div>
 
                 <button
-                    type="button"
-                    onclick="checkNonFollowers()"
-                    class="w-full inline-flex items-center justify-center gap-2 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all"
+                    type="submit"
+                    class="w-full inline-flex items-center justify-center gap-2 border border-zinc-800 dark:border-zinc-200 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg px-5 py-2.5 hover:border-black dark:hover:border-white hover:bg-white/60 dark:hover:bg-white/10 text-sm font-medium text-black dark:text-white transition-all disabled:opacity-50 disabled:cursor-wait"
                 >
                     <svg
                         class="w-4 h-4"
@@ -61,439 +64,98 @@ import PageHero from "../components/PageHero.astro";
                     </svg>
                     Check Non-Followers
                 </button>
-            </div>
-
-            <ResultsCard
-                title="Follow Check Results"
-                subtitleId="total-count"
-                subtitleDefault="Enter a username to check"
-                itemsPerPageSelectorId="items-per-page-selector"
-                paginationControlsId="pagination-controls"
-                paginationInfoId="pagination-info"
-                pageNumbersId="page-numbers"
-                prevPageButtonId="prev-page"
-                nextPageButtonId="next-page"
-                prevPageOnClick="previousPage()"
-                nextPageOnClick="nextPage()"
-                itemsPerPageSelectId="itemsPerPage"
-                itemsPerPageOnChange="changeItemsPerPage()"
-                containerClass="max-w-2xl"
-            >
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm table-fixed">
-                        <thead
-                            class="text-xs uppercase bg-zinc-50 dark:bg-zinc-900 text-gray-700 dark:text-gray-400"
-                        >
-                            <tr>
-                                <th
-                                    scope="col"
-                                    class="w-16 px-4 py-2 text-center font-medium"
-                                >
-                                    No.
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="w-16 px-4 py-2 text-center font-medium"
-                                >
-                                    Avatar
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="px-4 py-2 text-left font-medium"
-                                >
-                                    Username
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody
-                            id="resultList"
-                            class="divide-y divide-zinc-200 dark:divide-zinc-800"
-                        >
-                            <!-- Results will be inserted here -->
-                        </tbody>
-                    </table>
-                </div>
-            </ResultsCard>
+            </form>
         </div>
     </section>
+
+    <ResultsCard
+        title="People who don't follow you back"
+        subtitleDefault="Enter a username to check"
+        avatars
+    />
 
     <Footer />
 
     <script>
+        import { createResultsView, setError } from "../scripts/results";
+
         interface GitHubUser {
             login: string;
             avatar_url: string;
             html_url: string;
         }
 
-        let allUsers: GitHubUser[] = [];
-        let currentUsers: GitHubUser[] = [];
-        let currentPage = 1;
-        let itemsPerPage = 10;
-        let searchQuery = "";
-        let resultActionText = "";
+        const PER_PAGE = 100;
 
-        async function fetchAllPages(url: string): Promise<GitHubUser[]> {
-            let allData: GitHubUser[] = [];
-            let page = 1;
-            let hasMorePages = true;
+        const results = createResultsView({ avatars: true });
+        const form = document.getElementById("github-form") as HTMLFormElement;
+        const input = document.getElementById("username") as HTMLInputElement;
+        const submit = form.querySelector("button[type=submit]") as HTMLButtonElement;
 
-            while (hasMorePages) {
+        function describeFailure(response: Response, username: string): string {
+            if (response.status === 404) {
+                return `GitHub user "${username}" was not found.`;
+            }
+            if (response.headers.get("x-ratelimit-remaining") === "0") {
+                const reset = Number(response.headers.get("x-ratelimit-reset"));
+                const retry = reset
+                    ? ` Try again after ${new Date(reset * 1000).toLocaleTimeString()}.`
+                    : "";
+                return `GitHub API rate limit reached (60 requests/hour without login).${retry}`;
+            }
+            return `GitHub API request failed (HTTP ${response.status}).`;
+        }
+
+        async function fetchAllPages(
+            username: string,
+            relation: "followers" | "following",
+        ): Promise<GitHubUser[]> {
+            const users: GitHubUser[] = [];
+            for (let page = 1; ; page++) {
                 const response = await fetch(
-                    `${url}?per_page=100&page=${page}`,
+                    `https://api.github.com/users/${encodeURIComponent(username)}/${relation}?per_page=${PER_PAGE}&page=${page}`,
                 );
-                if (!response.ok) throw new Error("Failed to fetch data");
+                if (!response.ok) throw new Error(describeFailure(response, username));
                 const data: GitHubUser[] = await response.json();
-                allData = allData.concat(data);
-                hasMorePages = data.length === 100;
-                page++;
+                users.push(...data);
+                if (data.length < PER_PAGE) return users;
             }
-
-            return allData;
         }
 
-        (window as any).checkNonFollowers = async function () {
-            const username = (
-                document.getElementById("username") as HTMLInputElement
-            ).value;
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const username = input.value.trim();
             if (!username) {
-                const errorEl = document.getElementById("error-message");
-                if (errorEl) {
-                    errorEl.textContent = "Please enter a GitHub username.";
-                }
+                setError("Please enter a GitHub username.");
                 return;
             }
 
-            const errorEl = document.getElementById("error-message");
-            if (errorEl) errorEl.textContent = "";
-            document
-                .getElementById("result-search-controls")
-                ?.classList.add("hidden");
-
-            const resultList = document.getElementById("resultList");
-            if (resultList) {
-                resultList.innerHTML =
-                    '<tr><td colspan="3" class="px-6 py-4 text-center">Loading...</td></tr>';
-            }
-
-            const captionEl = document.getElementById("result-caption");
-            if (captionEl) {
-                captionEl.textContent = "People who don't follow you back";
-            }
+            setError("");
+            results.clear("Loading…");
+            // Disabling the submit button also blocks Enter, so only one check runs at a time.
+            submit.disabled = true;
 
             try {
                 const [followers, following] = await Promise.all([
-                    fetchAllPages(
-                        `https://api.github.com/users/${username}/followers`,
-                    ),
-                    fetchAllPages(
-                        `https://api.github.com/users/${username}/following`,
-                    ),
+                    fetchAllPages(username, "followers"),
+                    fetchAllPages(username, "following"),
                 ]);
-
-                const followersSet = new Set(
-                    followers.map((f: GitHubUser) => f.login),
+                const followerLogins = new Set(followers.map((user) => user.login));
+                results.setResults(
+                    following
+                        .filter((user) => !followerLogins.has(user.login))
+                        .map((user) => ({
+                            username: user.login,
+                            href: user.html_url,
+                            avatarUrl: user.avatar_url,
+                        })),
                 );
-                const nonFollowers = following.filter(
-                    (f: GitHubUser) => !followersSet.has(f.login),
-                );
-
-                displayResults(nonFollowers, "To unfollow");
             } catch (error) {
-                const errorEl = document.getElementById("error-message");
-                if (errorEl) {
-                    errorEl.textContent = `Error: ${(error as Error).message}`;
-                }
-                const resultList = document.getElementById("resultList");
-                if (resultList) resultList.innerHTML = "";
+                setError((error as Error).message);
+                results.clear("Enter a username to check");
+            } finally {
+                submit.disabled = false;
             }
-        };
-
-        (window as any).checkNotFollowing = async function () {
-            const username = (
-                document.getElementById("username") as HTMLInputElement
-            ).value;
-            if (!username) {
-                const errorEl = document.getElementById("error-message");
-                if (errorEl) {
-                    errorEl.textContent = "Please enter a GitHub username.";
-                }
-                return;
-            }
-
-            const errorEl = document.getElementById("error-message");
-            if (errorEl) errorEl.textContent = "";
-            document
-                .getElementById("result-search-controls")
-                ?.classList.add("hidden");
-
-            const resultList = document.getElementById("resultList");
-            if (resultList) {
-                resultList.innerHTML =
-                    '<tr><td colspan="3" class="px-6 py-4 text-center">Loading...</td></tr>';
-            }
-
-            const captionEl = document.getElementById("result-caption");
-            if (captionEl) {
-                captionEl.textContent = "People you don't follow back";
-            }
-
-            try {
-                const [followers, following] = await Promise.all([
-                    fetchAllPages(
-                        `https://api.github.com/users/${username}/followers`,
-                    ),
-                    fetchAllPages(
-                        `https://api.github.com/users/${username}/following`,
-                    ),
-                ]);
-
-                const followingSet = new Set(
-                    following.map((f: GitHubUser) => f.login),
-                );
-                const notFollowing = followers.filter(
-                    (f: GitHubUser) => !followingSet.has(f.login),
-                );
-
-                displayResults(notFollowing, "To follow");
-            } catch (error) {
-                const errorEl = document.getElementById("error-message");
-                if (errorEl) {
-                    errorEl.textContent = `Error: ${(error as Error).message}`;
-                }
-                const resultList = document.getElementById("resultList");
-                if (resultList) resultList.innerHTML = "";
-            }
-        };
-
-        function displayResults(users: GitHubUser[], actionText: string) {
-            allUsers = users;
-            currentUsers = users;
-            currentPage = 1;
-            searchQuery = "";
-            resultActionText = actionText;
-
-            const searchInput = document.getElementById(
-                "result-search",
-            ) as HTMLInputElement | null;
-            if (searchInput) searchInput.value = "";
-            renderResults();
-        }
-
-        (window as any).filterResults = function () {
-            const searchInput = document.getElementById(
-                "result-search",
-            ) as HTMLInputElement | null;
-            searchQuery = searchInput?.value.trim() || "";
-            const query = searchQuery.toLowerCase();
-            currentUsers = allUsers.filter((user) =>
-                user.login.toLowerCase().includes(query),
-            );
-            currentPage = 1;
-            renderResults();
-        };
-
-        function renderResults() {
-            const totalCount = document.getElementById("total-count");
-            if (totalCount) {
-                totalCount.textContent =
-                    currentUsers.length > 0
-                        ? searchQuery
-                            ? `${resultActionText}: ${currentUsers.length} of ${allUsers.length}`
-                            : `${resultActionText}: ${allUsers.length}`
-                        : allUsers.length > 0
-                            ? `No usernames match "${searchQuery}"`
-                            : "No users found";
-            }
-
-            const resultList = document.getElementById("resultList");
-            const searchControls = document.getElementById(
-                "result-search-controls",
-            );
-            const paginationControls = document.getElementById(
-                "pagination-controls",
-            );
-            const itemsPerPageSelector = document.getElementById(
-                "items-per-page-selector",
-            );
-
-            searchControls?.classList.toggle("hidden", allUsers.length === 0);
-            if (!resultList) return;
-
-            resultList.innerHTML = "";
-
-            if (currentUsers.length === 0) {
-                paginationControls?.classList.add("hidden");
-                itemsPerPageSelector?.classList.add("hidden");
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
-                cell.colSpan = 3;
-                cell.className =
-                    "px-6 py-8 text-center text-sm text-gray-600 dark:text-gray-400";
-                cell.textContent =
-                    allUsers.length > 0
-                        ? `No usernames match "${searchQuery}".`
-                        : "No users found";
-                row.appendChild(cell);
-                resultList.appendChild(row);
-            } else {
-                itemsPerPageSelector?.classList.remove("hidden");
-                paginationControls?.classList.remove("hidden");
-                renderPage();
-            }
-        }
-
-
-        function renderPage() {
-            const resultList = document.getElementById("resultList");
-            if (!resultList) return;
-
-            const totalItems = currentUsers.length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-            const pageItems = currentUsers.slice(startIndex, endIndex);
-
-            resultList.innerHTML = "";
-            pageItems.forEach((user, pageIndex) => {
-                const globalIndex = startIndex + pageIndex;
-                const tr = document.createElement("tr");
-                tr.className =
-                    "bg-white dark:bg-gray-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors";
-                tr.innerHTML = `
-          <td class="w-16 px-4 py-2 text-center text-gray-900 dark:text-gray-100">${globalIndex + 1}</td>
-          <td class="w-16 px-4 py-2">
-            <a href="${user.html_url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center w-full">
-              <img src="${user.avatar_url}" alt="${user.login}'s avatar" class="w-8 h-8 rounded-full">
-            </a>
-          </td>
-          <td class="px-4 py-2 font-medium min-w-0">
-            <a href="${user.html_url}" target="_blank" rel="noopener noreferrer" class="block text-black dark:text-white hover:underline truncate" title="${user.login}">
-              ${user.login}
-            </a>
-          </td>
-        `;
-                resultList.appendChild(tr);
-            });
-
-            // Update pagination info
-            const paginationInfo = document.getElementById("pagination-info");
-            if (paginationInfo) {
-                paginationInfo.textContent = `Showing ${startIndex + 1} to ${endIndex} of ${totalItems}`;
-            }
-
-            // Update pagination buttons
-            const prevButton = document.getElementById(
-                "prev-page",
-            ) as HTMLButtonElement;
-            const nextButton = document.getElementById(
-                "next-page",
-            ) as HTMLButtonElement;
-
-            if (prevButton) {
-                prevButton.disabled = currentPage === 1;
-            }
-            if (nextButton) {
-                nextButton.disabled = currentPage === totalPages;
-            }
-
-            // Render page numbers
-            renderPageNumbers(totalPages);
-        }
-
-        function renderPageNumbers(totalPages: number) {
-            const pageNumbersContainer =
-                document.getElementById("page-numbers");
-            if (!pageNumbersContainer) return;
-
-            pageNumbersContainer.innerHTML = "";
-
-            // Show max 5 page numbers at a time
-            let startPage = Math.max(1, currentPage - 2);
-            let endPage = Math.min(totalPages, startPage + 4);
-
-            // Adjust if we're near the end
-            if (endPage - startPage < 4) {
-                startPage = Math.max(1, endPage - 4);
-            }
-
-            // First page
-            if (startPage > 1) {
-                pageNumbersContainer.appendChild(createPageButton(1));
-                if (startPage > 2) {
-                    const ellipsis = document.createElement("span");
-                    ellipsis.className =
-                        "px-2 text-xs text-gray-600 dark:text-gray-400";
-                    ellipsis.textContent = "...";
-                    pageNumbersContainer.appendChild(ellipsis);
-                }
-            }
-
-            // Page numbers
-            for (let i = startPage; i <= endPage; i++) {
-                pageNumbersContainer.appendChild(createPageButton(i));
-            }
-
-            // Last page
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    const ellipsis = document.createElement("span");
-                    ellipsis.className =
-                        "px-2 text-xs text-gray-600 dark:text-gray-400";
-                    ellipsis.textContent = "...";
-                    pageNumbersContainer.appendChild(ellipsis);
-                }
-                pageNumbersContainer.appendChild(createPageButton(totalPages));
-            }
-        }
-
-        function createPageButton(pageNum: number) {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.textContent = pageNum.toString();
-            button.onclick = () => (window as any).goToPage(pageNum);
-
-            if (pageNum === currentPage) {
-                button.className =
-                    "w-8 h-8 border border-zinc-800 dark:border-zinc-200 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-medium transition-all";
-            } else {
-                button.className =
-                    "w-8 h-8 border border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm rounded-lg text-xs font-medium text-black dark:text-white hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all";
-            }
-
-            return button;
-        }
-
-        (window as any).goToPage = function (page: number) {
-            currentPage = page;
-            renderPage();
-        };
-
-        (window as any).previousPage = function () {
-            if (currentPage > 1) {
-                currentPage--;
-                renderPage();
-            }
-        };
-
-        (window as any).nextPage = function () {
-            const totalPages = Math.ceil(currentUsers.length / itemsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderPage();
-            }
-        };
-
-        (window as any).changeItemsPerPage = function () {
-            const select = document.getElementById(
-                "itemsPerPage",
-            ) as HTMLSelectElement;
-            if (select) {
-                itemsPerPage = parseInt(select.value);
-                currentPage = 1; // Reset to first page
-                renderPage();
-            }
-        };
+        });
     </script>
 </Layout>

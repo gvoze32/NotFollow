@@ -45,117 +45,82 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
   />
 
   <script>
-    import {
-      createNotFollowPage,
-      initModals,
-      onFileChange,
-      setError,
-      type Account,
-    } from "../scripts/notfollow-page";
+    import { createResultsView, setError, type Account } from "../scripts/results";
+    import { at, bindFileInput, onCheck, parseJson } from "../scripts/upload";
 
-    initModals();
-
-    const page = createNotFollowPage({
+    const results = createResultsView({
       hiddenKey: "notfollow_hidden_instagram_v1",
     });
 
-    let followersData: any[] = [];
-    let followingData: any[] = [];
-
-    onFileChange("followersFile", (content) => {
+    function usernameFromHref(href: string): string {
       try {
-        const data = JSON.parse(content);
-        if (!Array.isArray(data)) {
-          throw new Error("Followers JSON must contain an array.");
-        }
-        followersData.push(data);
-        setError("");
-      } catch (error) {
-        console.error("Error parsing followers file:", error);
-        setError(
-          "Error parsing followers file. Please make sure it is in the correct format."
-        );
-      }
-    });
-
-    onFileChange("followingFile", (content) => {
-      try {
-        const data = JSON.parse(content);
-        if (!Array.isArray(data?.relationships_following)) {
-          throw new Error("Following JSON must contain relationships_following.");
-        }
-        followingData.push(data);
-        setError("");
-      } catch (error) {
-        console.error("Error parsing following file:", error);
-        setError(
-          "Error parsing following file. Please make sure it is in the correct format."
-        );
-      }
-    });
-
-    function extractUsernameFromInstagramHref(href: string): string {
-      if (!href || typeof href !== "string") return "";
-      try {
-        const url = new URL(href);
-        const parts = url.pathname.split("/").filter(Boolean);
-        if (!parts.length) return "";
-        if (parts[0] === "_u" && parts[1]) return parts[1];
-        return parts[0];
+        const parts = new URL(href).pathname.split("/").filter(Boolean);
+        return parts[0] === "_u" ? parts[1] ?? "" : parts[0] ?? "";
       } catch {
         const parts = href.split("/").filter(Boolean);
         const uIndex = parts.indexOf("_u");
         if (uIndex !== -1 && parts[uIndex + 1]) return parts[uIndex + 1];
-        return parts[parts.length - 1] || "";
+        return parts[parts.length - 1] ?? "";
       }
     }
 
-    (window as any).processFiles = function () {
-      if (!followersData.length || !followingData.length) {
-        setError("Please upload both followers and following files.");
-        return;
+    // Older exports put the username in string_list_data[0].value; newer
+    // following.json entries only have `title` and a profile href.
+    function usernameOf(entry: unknown): string {
+      const value = at(entry, "string_list_data", 0, "value");
+      if (typeof value === "string" && value) return value;
+      const title = at(entry, "title");
+      if (typeof title === "string" && title) return title;
+      const href = at(entry, "string_list_data", 0, "href");
+      return typeof href === "string" ? usernameFromHref(href) : "";
+    }
+
+    const getFollowers = bindFileInput("followersFile", "followers file", (contents) =>
+      contents.flatMap((text) => {
+        const data = parseJson(text);
+        if (!Array.isArray(data)) {
+          throw new Error("expected a followers_*.json file");
+        }
+        return data;
+      })
+    );
+
+    const getFollowing = bindFileInput("followingFile", "following file", (contents) =>
+      contents.flatMap((text) => {
+        const entries = at(parseJson(text), "relationships_following");
+        if (!Array.isArray(entries)) {
+          throw new Error("expected a following.json file");
+        }
+        return entries;
+      })
+    );
+
+    onCheck(() => {
+      const followers = getFollowers();
+      const following = getFollowing();
+      if (!followers) return setError("Please upload your followers_*.json file(s).");
+      if (!following) return setError("Please upload your following.json file.");
+      setError("");
+
+      const followerNames = new Set<string>();
+      for (const entry of followers) {
+        const username = usernameOf(entry);
+        if (username) followerNames.add(username.toLowerCase());
+        else console.error("Invalid follower entry:", entry);
       }
 
-      const followersSet = new Set<string>();
-      followersData.forEach((data) => {
-        data.forEach((f: any) => {
-          const value = f?.string_list_data?.[0]?.value;
-          if (value) {
-            followersSet.add(String(value).toLowerCase());
-          } else {
-            console.error("Invalid follower entry:", f);
-          }
-        });
-      });
-
-      const followingList: Account[] = [];
-      followingData.forEach((data) => {
-        if (!data || !Array.isArray(data.relationships_following)) {
-          console.error("Invalid following JSON root:", data);
-          return;
+      const nonFollowers: Account[] = [];
+      for (const entry of following) {
+        const username = usernameOf(entry);
+        if (!username) {
+          console.error("Invalid following entry:", entry);
+        } else if (!followerNames.has(username.toLowerCase())) {
+          // Normalize to the standard profile URL to avoid broken `/_u/` links
+          nonFollowers.push({ username, href: `https://www.instagram.com/${username}/` });
         }
+      }
 
-        data.relationships_following.forEach((f: any) => {
-          const sld = f?.string_list_data?.[0];
-          const username =
-            (sld?.value as string) ||
-            extractUsernameFromInstagramHref(sld?.href || "");
-
-          if (username) {
-            // Normalize to standard profile URL to avoid broken `/_u/` links
-            followingList.push({
-              username,
-              href: `https://www.instagram.com/${username}/`,
-            });
-          } else {
-            console.error("Invalid following entry:", f);
-          }
-        });
-      });
-
-      page.setResults(
-        followingList.filter((f) => !followersSet.has(f.username.toLowerCase()))
-      );
-    };
+      results.setResults(nonFollowers);
+    });
   </script>
 </Layout>

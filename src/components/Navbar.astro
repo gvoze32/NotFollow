@@ -1,5 +1,12 @@
 ---
-const currentPath = Astro.url.pathname;
+const currentPath = Astro.url.pathname.replace(/\/$/, "");
+
+const links = [
+  { href: "/instagram", label: "Instagram" },
+  { href: "/tiktok", label: "TikTok" },
+  { href: "/github", label: "GitHub" },
+  { href: "/x", label: "X" },
+];
 ---
 
 <nav
@@ -28,50 +35,22 @@ const currentPath = Astro.url.pathname;
       >
 
       <!-- Navigation Links -->
-      <a
-        href="/instagram"
-        class:list={[
-          "px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm flex items-center justify-center rounded-md transition-colors whitespace-nowrap",
-          currentPath === "/instagram" || currentPath === "/instagram/"
-            ? "bg-black/10 dark:bg-white/10 text-black dark:text-white font-medium"
-            : "text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5",
-        ]}
-      >
-        Instagram
-      </a>
-      <a
-        href="/tiktok"
-        class:list={[
-          "px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm flex items-center justify-center rounded-md transition-colors whitespace-nowrap",
-          currentPath === "/tiktok" || currentPath === "/tiktok/"
-            ? "bg-black/10 dark:bg-white/10 text-black dark:text-white font-medium"
-            : "text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5",
-        ]}
-      >
-        TikTok
-      </a>
-      <a
-        href="/github"
-        class:list={[
-          "px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm flex items-center justify-center rounded-md transition-colors whitespace-nowrap",
-          currentPath === "/github" || currentPath === "/github/"
-            ? "bg-black/10 dark:bg-white/10 text-black dark:text-white font-medium"
-            : "text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5",
-        ]}
-      >
-        GitHub
-      </a>
-      <a
-        href="/x"
-        class:list={[
-          "px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm flex items-center justify-center rounded-md transition-colors whitespace-nowrap",
-          currentPath === "/x" || currentPath === "/x/"
-            ? "bg-black/10 dark:bg-white/10 text-black dark:text-white font-medium"
-            : "text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5",
-        ]}
-      >
-        X
-      </a>
+      {
+        links.map(({ href, label }) => (
+          <a
+            href={href}
+            aria-current={currentPath === href ? "page" : undefined}
+            class:list={[
+              "px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm flex items-center justify-center rounded-md transition-colors whitespace-nowrap",
+              currentPath === href
+                ? "bg-black/10 dark:bg-white/10 text-black dark:text-white font-medium"
+                : "text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5",
+            ]}
+          >
+            {label}
+          </a>
+        ))
+      }
 
       <span class="text-gray-400 dark:text-gray-600 text-xs sm:text-base"
         >|</span
