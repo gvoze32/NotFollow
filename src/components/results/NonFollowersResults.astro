@@ -22,12 +22,16 @@ const { platformName } = Astro.props;
       removes them from your followers export while they're inactive. Use
       <strong>Hide</strong> to exclude them.
     </p>
-    <button
-      id="reset-hidden"
-      type="button"
-      class="hidden underline hover:text-black dark:hover:text-white transition-colors"
-    >
-      Reset hidden (<span id="hidden-count">0</span>)
-    </button>
+    <div class="flex items-center gap-3 flex-wrap">
+      <!-- Platform-specific actions (e.g. Instagram status check) -->
+      <slot />
+      <button
+        id="reset-hidden"
+        type="button"
+        class="hidden underline hover:text-black dark:hover:text-white transition-colors"
+      >
+        Reset hidden (<span id="hidden-count">0</span>)
+      </button>
+    </div>
   </div>
 </ResultsCard>

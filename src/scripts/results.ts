@@ -3,7 +3,15 @@
 // pagination, and rendering live here so behavior stays identical everywhere.
 // Element ids come from `components/results/ResultsCard.astro`.
 
-export type Account = { username: string; href: string; avatarUrl?: string };
+export type AccountStatus = "active" | "unavailable" | "unknown";
+
+export type Account = {
+  username: string;
+  href: string;
+  avatarUrl?: string;
+  /** Result of a profile availability check, when one has run. */
+  status?: AccountStatus;
+};
 
 type ResultsOptions = {
   /** localStorage key for hidden usernames; enables the Hide column. */
@@ -20,6 +28,24 @@ const PAGE_BUTTON_ACTIVE_CLASS =
   "border-zinc-800 dark:border-zinc-200 bg-black dark:bg-white text-white dark:text-black";
 const PAGE_BUTTON_IDLE_CLASS =
   "border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm text-black dark:text-white hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10";
+
+const STATUS_BADGE: Record<AccountStatus, { label: string; title: string; className: string }> = {
+  active: {
+    label: "Active",
+    title: "Profile is live",
+    className: "text-green-700 dark:text-green-400 border-green-300 dark:border-green-800",
+  },
+  unavailable: {
+    label: "Unavailable",
+    title: "Profile page isn't available: deactivated, deleted, or renamed",
+    className: "text-red-700 dark:text-red-400 border-red-300 dark:border-red-800",
+  },
+  unknown: {
+    label: "?",
+    title: "Couldn't check this profile; try again later",
+    className: "text-gray-500 dark:text-gray-400 border-zinc-300 dark:border-zinc-700",
+  },
+};
 
 export function setError(message: string) {
   const el = document.getElementById("error-message");
@@ -61,6 +87,9 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
   const itemsPerPageSelect = byId<HTMLSelectElement>("items-per-page");
   const resetHiddenButton = byId("reset-hidden");
   const hiddenCountEl = byId("hidden-count");
+  const openBatchButton = byId<HTMLButtonElement>("open-batch");
+  const openBatchSize = byId<HTMLSelectElement>("open-batch-size");
+  const openProgress = byId("open-progress");
 
   const columnCount = 2 + (avatars ? 1 : 0) + (hiddenKey ? 1 : 0);
 
@@ -69,6 +98,8 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
   let currentPage = 1;
   let itemsPerPage = Number(itemsPerPageSelect?.value) || 10;
   let searchQuery = "";
+  // Usernames already opened via "Open next tabs" for the current results.
+  let opened = new Set<string>();
 
   function loadHidden(): Set<string> {
     if (!hiddenKey) return new Set();
@@ -144,13 +175,25 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
       );
     }
 
+    const wasOpened = opened.has(account.username);
     const name = profileLink(
       account.href,
-      "block text-black dark:text-white hover:underline truncate",
+      `${wasOpened ? "text-gray-400 dark:text-gray-500" : "text-black dark:text-white"} hover:underline truncate`,
       account.username
     );
-    name.title = account.username;
-    tr.append(cell("px-4 py-2 font-medium min-w-0", name));
+    name.title = wasOpened ? `${account.username} (opened)` : account.username;
+    const nameCell = document.createElement("div");
+    nameCell.className = "flex items-center gap-2 min-w-0";
+    nameCell.append(name);
+    if (account.status) {
+      const badge = STATUS_BADGE[account.status];
+      const span = document.createElement("span");
+      span.className = `shrink-0 border rounded px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`;
+      span.title = badge.title;
+      span.textContent = badge.label;
+      nameCell.append(span);
+    }
+    tr.append(cell("px-4 py-2 font-medium min-w-0", nameCell));
 
     if (hiddenKey) {
       const hide = document.createElement("button");
@@ -186,6 +229,7 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
     }
 
     searchControls?.classList.toggle("hidden", visible === 0);
+    updateOpenControls(matches);
 
     if (matches.length === 0) {
       setControlsVisible(false);
@@ -203,6 +247,44 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
 
     setControlsVisible(true);
     renderPage(matches);
+  }
+
+  function updateOpenControls(matches: Account[]) {
+    const openedCount = matches.filter((account) => opened.has(account.username)).length;
+    if (openProgress) {
+      openProgress.textContent = openedCount > 0 ? `${openedCount}/${matches.length} opened` : "";
+    }
+    if (openBatchButton) openBatchButton.disabled = openedCount === matches.length;
+  }
+
+  // Opens the next unopened search matches in new tabs. Browsers only allow one
+  // popup per click unless the user allows popups for this site, so stop at
+  // the first blocked window and explain.
+  function openNextBatch() {
+    const size = Number(openBatchSize?.value) || 5;
+    const matches = searchMatches();
+    const batch = matches.filter((account) => !opened.has(account.username)).slice(0, size);
+    let lastOpened: Account | undefined;
+    setError("");
+    for (const account of batch) {
+      // No "noopener" feature: with it, window.open always returns null and a
+      // blocked popup can't be detected.
+      const win = window.open(account.href, "_blank");
+      if (!win) {
+        setError(
+          "Your browser blocked the extra tabs. Allow pop-ups for this site (icon in the address bar), then click “Open next tabs” again."
+        );
+        break;
+      }
+      win.opener = null;
+      opened.add(account.username);
+      lastOpened = account;
+    }
+    // Show the page holding the last opened account so progress stays visible.
+    if (lastOpened) {
+      currentPage = Math.floor(matches.indexOf(lastOpened) / itemsPerPage) + 1;
+    }
+    render();
   }
 
   function renderPage(matches = searchMatches()) {
@@ -310,6 +392,7 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
 
   prevButton?.addEventListener("click", () => goToPage(currentPage - 1));
   nextButton?.addEventListener("click", () => goToPage(currentPage + 1));
+  openBatchButton?.addEventListener("click", openNextBatch);
 
   function resetSearch() {
     currentPage = 1;
@@ -321,7 +404,30 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
     /** Replace the full (unfiltered) non-followers list and re-render. */
     setResults(accounts: Account[]) {
       allAccounts = accounts;
+      opened = new Set();
       resetSearch();
+      refresh();
+    },
+
+    /** Accounts currently listed (not hidden), ignoring the search filter. */
+    visible(): readonly Account[] {
+      return visibleAccounts;
+    },
+
+    /** Record check results by username and re-render the current page. */
+    setStatuses(statuses: ReadonlyMap<string, AccountStatus>) {
+      for (const account of allAccounts) {
+        const status = statuses.get(account.username);
+        if (status) account.status = status;
+      }
+      render();
+    },
+
+    /** Add usernames to the hidden list (needs `hiddenKey`). */
+    hide(usernames: Iterable<string>) {
+      const hidden = loadHidden();
+      for (const username of usernames) hidden.add(username.toLowerCase());
+      saveHidden(hidden);
       refresh();
     },
 
@@ -329,6 +435,7 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
     clear(message: string) {
       allAccounts = [];
       visibleAccounts = [];
+      opened = new Set();
       resetSearch();
       if (summary) summary.textContent = message;
       searchControls?.classList.add("hidden");

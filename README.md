@@ -1,268 +1,61 @@
 # NotFollow
 
-A modern web application built with Astro to help you identify people who don't follow you back on social media platforms.
+Find out who doesn't follow you back on Instagram, TikTok, X, and GitHub.
 
-## 🚀 Features
+**Use it here:** https://notfollow.pages.dev
 
-- **Multi-Platform Support**: Instagram, TikTok, GitHub, and X (Twitter)
-- **Modern UI**: Beautiful dark mode with glassmorphism effects and smooth animations
-- **Fast Performance**: Built with Astro for optimal loading speeds
-- **Privacy First**: All processing happens client-side - your data never leaves your browser
-- **Search Results**: Quickly filter account usernames in any results list
-- **Responsive Design**: Works perfectly on desktop and mobile devices
-
-## 🎯 Supported Platforms
-
-### ✅ Instagram
-- Upload `followers_*.json` and `following.json` files
-- Robust parsing with fallback mechanisms
-- Normalized profile URLs
-
-### ✅ TikTok
-- Upload single `user_data_tiktok.json` file
-- Direct links to TikTok profiles
-
-### ✅ GitHub
-- No file upload required - just enter username
-- Fetches data directly from GitHub API
-- Shows who doesn't follow back, with avatars
-
-### ✅ X (Twitter)
-- Upload `follower.js` and `following.js` files from Twitter data export
-- Parses JavaScript files automatically
-- Lists account IDs (the archive has no usernames) linking to each X profile
-
-## 🛠️ Tech Stack
-
-- [Astro](https://astro.build) - Web framework with zero JS by default
-- [Tailwind CSS v4](https://tailwindcss.com) - Utility-first CSS framework
-- [TypeScript](https://www.typescriptlang.org) - Type-safe JavaScript
-- Vanilla JavaScript for client-side processing
-
-## 📂 Project Structure
-
-```
-/
-├── public/             # Static assets
-├── src/
-│   ├── components/     # Reusable UI components
-│   │   ├── Navbar.astro, Footer.astro, PageHero.astro, HowToModal.astro
-│   │   ├── results/    # ResultsCard + NonFollowersResults (results list markup)
-│   │   └── upload/     # UploadCard + FileInput
-│   ├── layouts/        # Page layouts
-│   │   └── Layout.astro
-│   ├── pages/          # Routes (file-based routing)
-│   │   ├── index.astro      # Homepage
-│   │   ├── instagram.astro  # Instagram checker
-│   │   ├── tiktok.astro     # TikTok checker
-│   │   ├── github.astro     # GitHub checker
-│   │   └── x.astro          # X/Twitter checker
-│   ├── scripts/        # Shared client-side logic
-│   │   ├── results.ts  # Results list: search, pagination, hidden accounts
-│   │   └── upload.ts   # File input parsing + "Check Non-Followers" wiring
-│   └── styles/         # Global styles
-│       └── global.css
-└── package.json
-```
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 🚦 Getting Started
-
-1. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-2. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-3. **Open your browser**
-   Navigate to `http://localhost:4321`
-
-## 📱 How to Use
+## How to use
 
 ### Instagram
 
-1. Go to Instagram and download your data:
-   - Profile → Menu (☰) → **Accounts Center**
-   - **Your information and permissions** → **Download your information**
-   - **Download or transfer information** → Select profiles
-   - **Next** → **Some of your information**
-   - Choose **Followers and Following** → **Next**
-   - **Download to device**
-   - Date range: **All time**, Format: **JSON**, Media quality: **Low**
-   - **Create files**
-
-2. Wait for email notification (can take a few hours)
-
-3. Upload the files:
-   - Upload `followers_*.json` files (can be multiple)
-   - Upload `following.json` file
-   - If a file is selected in the wrong field, choose the correct file; the mismatched JSON is rejected, so no refresh is needed.
-4. Click "Check Non-Followers"
+1. In the Instagram app, open **Accounts Center → Your information and permissions → Download your information**.
+2. Choose **Some of your information → Followers and following**, then **Download to device** with format **JSON** and date range **All time**.
+3. Wait for Instagram's email (it can take a few hours), download the ZIP and unzip it.
+4. On NotFollow, upload `followers_1.json` (and any other `followers_*.json`) and `following.json`.
+5. Click **Check Non-Followers**.
 
 ### TikTok
 
-1. Download your TikTok data:
-   - Profile → Menu (☰) → **Settings and privacy**
-   - **Account** → **Download your data**
-   - Select **JSON** format
-   - Request and download the file
-
-2. Upload `user_data_tiktok.json` or `user_data.json`
-
-3. Click "Check Non-Followers"
-
-### GitHub
-
-1. Enter any GitHub username (including your own) and press Enter or click "Check Non-Followers"
-
-2. Results are fetched directly from GitHub API
+1. In TikTok, open **Settings and privacy → Account → Download your data**, pick **JSON** and request it.
+2. Upload `user_data_tiktok.json` (or `user_data.json`) and click **Check Non-Followers**.
 
 ### X (Twitter)
 
-1. Download your X data:
-   - Settings → **Your account** → **Download an archive of your data**
-   - Wait for email with download link
-   - Extract the ZIP file
+1. In X, open **Settings → Your account → Download an archive of your data** and wait for the email.
+2. Unzip it, upload `follower.js` and `following.js`, and click **Check Non-Followers**.
+3. X's archive has no usernames, so the list shows account IDs; each one still links to the profile.
 
-2. Upload both files:
-   - `follower.js` from the archive
-   - `following.js` from the archive
+### GitHub
 
-3. Click "Check Non-Followers"
+Type any GitHub username and click **Check Non-Followers**. No file needed.
 
-## 🎨 Features
+## Good to know
 
-### Pagination
-- Default: 10 items per page
-- Options: 10, 25, 50, 100 items per page
-- Page numbers with ellipsis for large datasets
-- Previous/Next navigation
+- **"Sorry, this page isn't available" on Instagram.** Usually the account was deactivated, deleted, or renamed. Deactivated accounts also disappear from your followers file, so they show up here even if they followed you. Click **Check status**, then **Hide unavailable** to remove them from the list.
+- **Opening profiles faster.** Pick 5 or 10 and click **Open next tabs**. Your browser opens only one tab per click until you allow pop-ups for the site (icon in the address bar). Opening lots of profiles very quickly can make Instagram show "page isn't available" for a while, so take it in small batches.
+- **Hide.** Hidden accounts stay hidden on your device next time you check. **Reset hidden** brings them back.
 
-### Search Results
-- Filter usernames instantly across platform result lists
-- Search restarts pagination from the first matching result
+## Privacy
 
-### Hide Accounts
-- Hide accounts you don't want listed (e.g. deactivated profiles) on Instagram, TikTok, and X
-- Hidden accounts are remembered per platform in localStorage
-- "Reset hidden" brings them all back
+Your files are read in your browser and never uploaded. The only things sent anywhere:
 
-### Dark Mode
-- Default: Dark mode enabled
-- Toggle between light and dark themes
-- Preference saved in localStorage
-- Smooth transitions
+- **GitHub:** the username you type, to GitHub's public API.
+- **Instagram "Check status":** the usernames being checked, to this site's server, which asks Instagram whether each profile exists. Nothing is stored.
 
-## 🔧 Development
+## For developers
 
-### Adding a New Platform
-
-1. Create a new page in `src/pages/[platform].astro`
-2. Copy the structure from an existing upload page (`UploadCard`, `FileInput`, `NonFollowersResults`)
-3. Parse the export with `bindFileInput()` from `src/scripts/upload.ts`
-4. Pass the non-followers to `createResultsView().setResults()` from `src/scripts/results.ts`
-5. Update navigation in `src/components/Navbar.astro`
-6. Add platform card in `src/pages/index.astro`
-
-### Customizing the Theme
-
-Edit `src/styles/global.css` for global styles. The project uses Tailwind v4 with custom dark mode variant:
-
-```css
-@custom-variant dark (&:where(.dark, .dark *));
-```
-
-This enables class-based dark mode instead of media query based.
-
-### Theme Toggle Implementation
-
-Theme is managed in `src/layouts/Layout.astro`:
-- Initial theme set in `<head>` to prevent FOUC
-- Toggle button in `src/components/Navbar.astro`
-- Stored as `color-theme` in localStorage
-
-## 🏗️ Building for Production
+Built with [Astro](https://astro.build) and Tailwind CSS. Hosted on Cloudflare Pages.
 
 ```bash
-npm run build
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # output in dist/
 ```
 
-The build output will be in `./dist/` directory, ready to deploy to:
-- Netlify
-- Vercel
-- GitHub Pages
-- Cloudflare Pages
-- Any static hosting service
+The Instagram status check is a Cloudflare Pages Function in `functions/api/ig-status.ts`, so it doesn't run under `npm run dev`. To try it locally: `npm run build && npx wrangler pages dev dist`.
 
-### Deployment Tips
+Cloudflare Pages settings: build command `npm run build`, output directory `dist`.
 
-1. All platforms work with static site generation
-2. No server-side processing required
-3. No environment variables needed
-4. Works with any CDN
+## License
 
-## 🔒 Privacy & Security
-
-- **No data upload**: All processing happens in your browser; only usernames you choose to hide are saved in localStorage
-- **No external API calls** (except GitHub which uses public API)
-- **No analytics or tracking**: Your activity is completely private
-- **Open source**: Code is transparent and auditable
-- **No authentication required**: No login, no account creation
-
-## 📊 Browser Compatibility
-
-- Chrome/Edge: ✅ Full support
-- Firefox: ✅ Full support
-- Safari: ✅ Full support
-- Mobile browsers: ✅ Full support
-
-## 🐛 Known Limitations
-
-- **API rate limits**: GitHub API has rate limits (60 requests/hour for unauthenticated)
-- **Large datasets**: Very large follower lists (10,000+) may slow down processing
-
-## 📝 License
-
-This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). See the LICENSE file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 💬 Support
-
-For support, questions, or feature requests:
-- Open an issue on GitHub
-- Check existing issues for solutions
-
-## 🙏 Acknowledgments
-
-- Thanks to all contributors
-- Built with [Astro](https://astro.build)
-- Styled with [Tailwind CSS](https://tailwindcss.com)
-
----
-
-**Made with ❤️ for privacy-conscious social media users**
+[AGPL-3.0](LICENSE)
