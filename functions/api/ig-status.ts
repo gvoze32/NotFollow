@@ -1,41 +1,62 @@
 // Cloudflare Pages Function: GET /api/ig-status?username=<name>
 // Reports whether an Instagram profile is reachable. Browsers can't do this
-// directly (CORS, and instagram.com serves a login wall to normal visitors),
-// but it serves link-preview crawlers a page whose <title> is
-// "Name (@username) • Instagram ..." for live profiles and just "Instagram"
-// for deactivated, deleted, or renamed ones.
+// directly (CORS), and Instagram answers profile pages requested from
+// Cloudflare's IPs with a login redirect, so three signals that still work
+// from here are combined:
+//
+// 1. `/<name>/feed/` 301-redirects to `/<name>/` only when the username
+//    belongs to a live account (public or private).
+// 2. Otherwise the profile embed (`/<name>/embed/`) is a normal "Embed" for a
+//    live public profile and "EmbedIsBroken" for a missing, deactivated, or
+//    private/embed-disabled one.
+// 3. A broken embed alone can't tell private from gone, so "unavailable" also
+//    requires the feed redirect to work for a known account right now;
+//    otherwise Instagram is throttling us and the answer is "unknown".
 
 type Status = "active" | "unavailable" | "unknown";
 
 const USERNAME = /^[A-Za-z0-9._]{1,30}$/;
 const CRAWLER_UA =
   "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)";
-// <title> sits ~100 KB into the document; stop reading well after that.
-const SCAN_LIMIT = 400_000;
+const CONTROL_USERNAME = "instagram";
+// The embed's root `<div class="Embed…">` sits ~28 KB into the document.
+const SCAN_LIMIT = 200_000;
+const EMBED_CLASS = /<div class="(Embed[^"]*)"/;
 
-function decodeEntities(text: string): string {
-  return text
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
-    .replace(/&amp;/g, "&");
+function instagram(path: string) {
+  return fetch(`https://www.instagram.com/${path}`, {
+    headers: { "User-Agent": CRAWLER_UA, "Accept-Language": "en-US" },
+    redirect: "manual",
+  });
 }
 
-async function readTitle(body: ReadableStream<Uint8Array>): Promise<string | null> {
-  const reader = body.getReader();
+/** True when `/<username>/feed/` redirects to the profile, i.e. the account exists. */
+async function feedResolves(username: string): Promise<boolean> {
+  const response = await instagram(`${username}/feed/`);
+  response.body?.cancel();
+  const location = response.headers.get("location");
+  if (response.status !== 301 || !location) return false;
+  const path = new URL(location, "https://www.instagram.com").pathname;
+  return path.toLowerCase() === `/${username.toLowerCase()}/`;
+}
+
+/** Class list of the profile embed's root element; null if it wasn't found. */
+async function embedClass(username: string): Promise<string | null> {
+  const response = await instagram(`${username}/embed/`);
+  if (response.status !== 200 || !response.body) {
+    response.body?.cancel();
+    return null;
+  }
+  const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let html = "";
   try {
     while (html.length < SCAN_LIMIT) {
       const { done, value } = await reader.read();
       if (done) break;
-      // Re-scan a little before the new chunk so a split tag is still found.
-      const from = Math.max(0, html.length - 16);
       html += decoder.decode(value, { stream: true });
-      const end = html.indexOf("</title>", from);
-      if (end !== -1) {
-        const start = html.lastIndexOf("<title>", end);
-        return start === -1 ? null : decodeEntities(html.slice(start + 7, end).trim());
-      }
+      const match = EMBED_CLASS.exec(html);
+      if (match) return match[1];
     }
     return null;
   } finally {
@@ -44,18 +65,11 @@ async function readTitle(body: ReadableStream<Uint8Array>): Promise<string | nul
 }
 
 async function lookup(username: string): Promise<Status> {
-  const response = await fetch(`https://www.instagram.com/${username}/`, {
-    headers: { "User-Agent": CRAWLER_UA, "Accept-Language": "en-US" },
-    redirect: "manual",
-  });
-  if (response.status !== 200 || !response.body) {
-    response.body?.cancel();
-    return "unknown";
-  }
-  const title = await readTitle(response.body);
-  if (title === null) return "unknown";
-  if (title.toLowerCase().includes(`(@${username.toLowerCase()})`)) return "active";
-  return title === "Instagram" ? "unavailable" : "unknown";
+  if (await feedResolves(username)) return "active";
+  const embed = await embedClass(username);
+  if (embed === "Embed") return "active";
+  if (embed === null || !embed.split(" ").includes("EmbedIsBroken")) return "unknown";
+  return (await feedResolves(CONTROL_USERNAME)) ? "unavailable" : "unknown";
 }
 
 function json(body: unknown, status = 200, cache = "no-store") {
