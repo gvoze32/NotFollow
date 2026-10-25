@@ -1,5 +1,6 @@
 ---
 const ETH_ADDRESS = "0x98441fC52b473d2E8B246315F96701484e6353CC";
+const SAWERIA_URL = "https://saweria.co/adena";
 ---
 
 <footer class="py-12 px-4 bg-white dark:bg-gray-950 border-t border-zinc-200 dark:border-zinc-800">
@@ -18,6 +19,16 @@ const ETH_ADDRESS = "0x98441fC52b473d2E8B246315F96701484e6353CC";
       </div>
 
       <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+        <span class="hidden sm:inline">Support: </span>
+        <a
+          href={SAWERIA_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-900 rounded font-medium text-black dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+          title="Donate via Saweria"
+        >
+          Saweria
+        </a>
         <svg
           class="w-4 h-4 text-[#626890]"
           aria-hidden="true"
@@ -29,7 +40,6 @@ const ETH_ADDRESS = "0x98441fC52b473d2E8B246315F96701484e6353CC";
             d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"
           ></path>
         </svg>
-        <span class="hidden sm:inline">Support: </span>
         <button
           id="copy-eth-address"
           type="button"
