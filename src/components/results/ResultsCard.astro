@@ -62,29 +62,14 @@ const navButtonClass =
                 id="results-search-controls"
                 class="hidden px-4 py-3 border-b border-zinc-200 dark:border-zinc-800"
             >
-                <div class="flex items-center justify-between flex-wrap gap-3">
-                    <label for="results-search" class="sr-only">Search usernames</label>
-                    <input
-                        id="results-search"
-                        type="search"
-                        placeholder="Search usernames…"
-                        autocomplete="off"
-                        class="block w-full max-w-sm text-sm text-gray-900 dark:text-gray-200 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-gray-900 px-3 py-2 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200"
-                    />
-
-                    <!-- Batch-open profiles in new tabs; label, batch size and cooldown come from results.ts -->
-                    <div class="flex items-center gap-2">
-                        <button
-                            type="button"
-                            id="open-batch"
-                            class={navButtonClass}
-                            title="Opens a few profiles at a time with a pause in between, so the platform doesn't start showing 'page isn't available'."
-                        >
-                            Open next tabs
-                        </button>
-                        <span id="open-progress" class="text-xs text-gray-600 dark:text-gray-400"></span>
-                    </div>
-                </div>
+                <label for="results-search" class="sr-only">Search usernames</label>
+                <input
+                    id="results-search"
+                    type="search"
+                    placeholder="Search usernames…"
+                    autocomplete="off"
+                    class="block w-full max-w-sm text-sm text-gray-900 dark:text-gray-200 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-gray-900 px-3 py-2 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200"
+                />
             </div>
 
             <!-- Pagination controls -->

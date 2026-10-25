@@ -35,20 +35,18 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
   </UploadCard>
 
   <NonFollowersResults platformName="Instagram">
+    <Fragment slot="note">
+      Every profile is checked first: deactivated, deleted, or renamed accounts
+      (profile page isn't available) are removed automatically.
+    </Fragment>
+    <span id="unavailable-note" class="hidden"></span>
     <button
-      id="check-status"
+      id="retry-status"
       type="button"
       class="hidden underline hover:text-black dark:hover:text-white transition-colors disabled:no-underline disabled:cursor-wait"
-      title="Check which profiles are still live on Instagram"
+      title="Check the profiles Instagram didn't answer for again"
     >
-      Check status
-    </button>
-    <button
-      id="hide-unavailable"
-      type="button"
-      class="hidden underline hover:text-black dark:hover:text-white transition-colors"
-    >
-      Hide unavailable (<span id="unavailable-count">0</span>)
+      Retry unchecked
     </button>
   </NonFollowersResults>
 
@@ -73,12 +71,12 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
       hiddenKey: "notfollow_hidden_instagram_v1",
     });
 
-    const checkStatusButton = document.getElementById("check-status") as HTMLButtonElement | null;
-    const hideUnavailableButton = document.getElementById("hide-unavailable");
-    const unavailableCount = document.getElementById("unavailable-count");
+    const retryButton = document.getElementById("retry-status") as HTMLButtonElement | null;
+    const unavailableNote = document.getElementById("unavailable-note");
     const STATUS_CONCURRENCY = 4;
     // Bumped whenever results change so an in-flight check stops writing.
     let statusRun = 0;
+    let removedCount = 0;
 
     /** Status from `functions/api/ig-status.ts`; null when that endpoint isn't deployed. */
     async function fetchStatus(username: string): Promise<AccountStatus | null> {
@@ -93,43 +91,19 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
       }
     }
 
-    function unavailableUsernames(): string[] {
-      return results
-        .visible()
-        .filter((account) => account.status === "unavailable")
-        .map((account) => account.username);
-    }
-
-    function updateHideUnavailable() {
-      const count = unavailableUsernames().length;
-      if (unavailableCount) unavailableCount.textContent = String(count);
-      hideUnavailableButton?.classList.toggle("hidden", count === 0);
-    }
-
-    function resetStatusControls(hasResults: boolean) {
-      statusRun++;
-      if (checkStatusButton) {
-        checkStatusButton.disabled = false;
-        checkStatusButton.textContent = "Check status";
-        checkStatusButton.classList.toggle("hidden", !hasResults);
-      }
-      hideUnavailableButton?.classList.add("hidden");
-    }
-
-    async function checkStatuses() {
-      if (!checkStatusButton) return;
+    /**
+     * Checks `usernames` with a few parallel requests. Resolves null when a
+     * newer run superseded this one; `missingEndpoint` means nothing could be
+     * checked here (e.g. `npm run dev`).
+     */
+    async function checkStatuses(
+      usernames: string[],
+      onProgress: (done: number, total: number) => void
+    ): Promise<{ statuses: Map<string, AccountStatus>; missingEndpoint: boolean } | null> {
       const run = ++statusRun;
-      // Re-clicking only retries accounts without a definite answer.
-      const queue = results
-        .visible()
-        .filter((account) => account.status !== "active" && account.status !== "unavailable")
-        .map((account) => account.username);
-      const total = queue.length;
+      const queue = [...usernames];
       const statuses = new Map<string, AccountStatus>();
       let missingEndpoint = false;
-
-      checkStatusButton.disabled = true;
-      checkStatusButton.textContent = `Checking 0/${total}…`;
 
       async function worker() {
         while (queue.length > 0 && run === statusRun && !missingEndpoint) {
@@ -141,27 +115,71 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
             return;
           }
           statuses.set(username, status);
-          checkStatusButton!.textContent = `Checking ${statuses.size}/${total}…`;
-          if (statuses.size % 10 === 0) results.setStatuses(statuses);
+          onProgress(statuses.size, usernames.length);
         }
       }
       await Promise.all(Array.from({ length: STATUS_CONCURRENCY }, worker));
-      if (run !== statusRun) return;
+      return run === statusRun ? { statuses, missingEndpoint } : null;
+    }
 
-      results.setStatuses(statuses);
-      updateHideUnavailable();
-      checkStatusButton.disabled = false;
-      const unknown = [...statuses.values()].filter((status) => status === "unknown").length;
-      checkStatusButton.textContent = unknown > 0 ? `Retry ${unknown} unchecked` : "Check status";
-      if (missingEndpoint) {
-        setError("Status check isn't available here: /api/ig-status is only served on Cloudflare Pages.");
+    /** Drops unavailable accounts from the list and refreshes the status controls. */
+    function applyStatuses(statuses: ReadonlyMap<string, AccountStatus>) {
+      removedCount += results.setStatuses(statuses);
+      if (unavailableNote) {
+        unavailableNote.textContent = `${removedCount} unavailable removed`;
+        unavailableNote.title =
+          "Deactivated, deleted, or renamed accounts — their profile page isn't available";
+        unavailableNote.classList.toggle("hidden", removedCount === 0);
+      }
+      const unknown = results.visible().filter((account) => account.status === "unknown").length;
+      if (retryButton) {
+        retryButton.disabled = false;
+        retryButton.textContent = `Retry ${unknown} unchecked`;
+        retryButton.classList.toggle("hidden", unknown === 0);
       }
     }
 
-    checkStatusButton?.addEventListener("click", checkStatuses);
-    hideUnavailableButton?.addEventListener("click", () => {
-      results.hide(unavailableUsernames());
-      updateHideUnavailable();
+    function resetStatusControls() {
+      removedCount = 0;
+      unavailableNote?.classList.add("hidden");
+      retryButton?.classList.add("hidden");
+    }
+
+    // Runs on every Check so only accounts whose profile still exists are listed.
+    async function showValidAccounts(nonFollowers: Account[]) {
+      resetStatusControls();
+      if (nonFollowers.length === 0) {
+        statusRun++;
+        results.setResults(nonFollowers);
+        return;
+      }
+
+      results.clear(`Checking profiles 0/${nonFollowers.length}…`);
+      const outcome = await checkStatuses(
+        nonFollowers.map((account) => account.username),
+        (done, total) => results.clear(`Checking profiles ${done}/${total}…`)
+      );
+      if (!outcome) return;
+
+      results.setResults(nonFollowers);
+      if (outcome.missingEndpoint) {
+        setError("Status check isn't available here: /api/ig-status is only served on Cloudflare Pages. Showing all accounts.");
+        return;
+      }
+      applyStatuses(outcome.statuses);
+    }
+
+    retryButton?.addEventListener("click", async () => {
+      const unknown = results
+        .visible()
+        .filter((account) => account.status === "unknown")
+        .map((account) => account.username);
+      retryButton.disabled = true;
+      retryButton.textContent = `Checking 0/${unknown.length}…`;
+      const outcome = await checkStatuses(unknown, (done, total) => {
+        retryButton.textContent = `Checking ${done}/${total}…`;
+      });
+      if (outcome) applyStatuses(outcome.statuses);
     });
 
     function usernameFromHref(href: string): string {
@@ -236,8 +254,7 @@ import NonFollowersResults from "../components/results/NonFollowersResults.astro
         }
       }
 
-      results.setResults(nonFollowers);
-      resetStatusControls(nonFollowers.length > 0);
+      void showValidAccounts(nonFollowers);
     });
   </script>
 </Layout>

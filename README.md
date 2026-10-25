@@ -31,8 +31,7 @@ Type any GitHub username and click **Check Non-Followers**. No file needed.
 
 ## Good to know
 
-- **"Sorry, this page isn't available" on Instagram.** Usually the account was deactivated, deleted, or renamed. Deactivated accounts also disappear from your followers file, so they show up here even if they followed you. Click **Check status**, then **Hide unavailable** to remove them from the list.
-- **Opening profiles faster.** Click **Open next 5** to open five profiles in new tabs. The button then waits 60 seconds before the next five, because opening lots of profiles quickly can make Instagram show "page isn't available" for a while. Your browser opens only one tab per click until you allow pop-ups for the site (icon in the address bar).
+- **"Sorry, this page isn't available" on Instagram.** Usually the account was deactivated, deleted, or renamed. Deactivated accounts also disappear from your followers file, so they'd look like non-followers. So after you click Check, every profile is checked first and only accounts whose profile still exists are listed; the number removed is shown above the list. Profiles Instagram didn't answer for stay listed with a **?** badge; click **Retry N unchecked** to check them again.
 - **Hide.** Hidden accounts stay hidden on your device next time you check. **Reset hidden** brings them back.
 
 ## Privacy
@@ -40,7 +39,7 @@ Type any GitHub username and click **Check Non-Followers**. No file needed.
 Your files are read in your browser and never uploaded. The only things sent anywhere:
 
 - **GitHub:** the username you type, to GitHub's public API.
-- **Instagram "Check status":** the usernames being checked, to this site's server, which asks Instagram whether each profile exists. Nothing is stored.
+- **Instagram status check:** runs automatically after Check; the usernames being checked go to this site's server, which asks Instagram whether each profile exists. Nothing is stored.
 
 ## For developers
 

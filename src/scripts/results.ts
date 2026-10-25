@@ -22,11 +22,6 @@ type ResultsOptions = {
 
 const MAX_PAGE_BUTTONS = 5;
 
-// "Open next N" tabs: Instagram publishes no limit for profile views, so stay
-// conservative — a few tabs per click and a pause before the next batch.
-const OPEN_BATCH_SIZE = 5;
-const OPEN_COOLDOWN_MS = 60_000;
-
 const PAGE_BUTTON_CLASS =
   "w-8 h-8 border rounded-lg text-xs font-medium transition-all";
 const PAGE_BUTTON_ACTIVE_CLASS =
@@ -34,22 +29,12 @@ const PAGE_BUTTON_ACTIVE_CLASS =
 const PAGE_BUTTON_IDLE_CLASS =
   "border-zinc-300 dark:border-zinc-700 bg-white/40 dark:bg-black/10 backdrop-blur-sm text-black dark:text-white hover:border-zinc-800 dark:hover:border-zinc-200 hover:bg-white/60 dark:hover:bg-white/10";
 
-const STATUS_BADGE: Record<AccountStatus, { label: string; title: string; className: string }> = {
-  active: {
-    label: "Active",
-    title: "Profile is live",
-    className: "text-green-700 dark:text-green-400 border-green-300 dark:border-green-800",
-  },
-  unavailable: {
-    label: "Unavailable",
-    title: "Profile page isn't available: deactivated, deleted, or renamed",
-    className: "text-red-700 dark:text-red-400 border-red-300 dark:border-red-800",
-  },
-  unknown: {
-    label: "?",
-    title: "Couldn't check this profile; try again later",
-    className: "text-gray-500 dark:text-gray-400 border-zinc-300 dark:border-zinc-700",
-  },
+// Unavailable accounts are dropped and active ones need no marker, so only
+// accounts the check couldn't answer for get a badge.
+const UNKNOWN_BADGE = {
+  label: "?",
+  title: "Couldn't check this profile; try again later",
+  className: "text-gray-500 dark:text-gray-400 border-zinc-300 dark:border-zinc-700",
 };
 
 export function setError(message: string) {
@@ -92,8 +77,6 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
   const itemsPerPageSelect = byId<HTMLSelectElement>("items-per-page");
   const resetHiddenButton = byId("reset-hidden");
   const hiddenCountEl = byId("hidden-count");
-  const openBatchButton = byId<HTMLButtonElement>("open-batch");
-  const openProgress = byId("open-progress");
 
   const columnCount = 2 + (avatars ? 1 : 0) + (hiddenKey ? 1 : 0);
 
@@ -102,10 +85,6 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
   let currentPage = 1;
   let itemsPerPage = Number(itemsPerPageSelect?.value) || 10;
   let searchQuery = "";
-  // Usernames already opened via the batch-open button for the current results.
-  let opened = new Set<string>();
-  let cooldownUntil = 0;
-  let cooldownTimer: number | undefined;
 
   function loadHidden(): Set<string> {
     if (!hiddenKey) return new Set();
@@ -181,22 +160,20 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
       );
     }
 
-    const wasOpened = opened.has(account.username);
     const name = profileLink(
       account.href,
-      `${wasOpened ? "text-gray-400 dark:text-gray-500" : "text-black dark:text-white"} hover:underline truncate`,
+      "text-black dark:text-white hover:underline truncate",
       account.username
     );
-    name.title = wasOpened ? `${account.username} (opened)` : account.username;
+    name.title = account.username;
     const nameCell = document.createElement("div");
     nameCell.className = "flex items-center gap-2 min-w-0";
     nameCell.append(name);
-    if (account.status) {
-      const badge = STATUS_BADGE[account.status];
+    if (account.status === "unknown") {
       const span = document.createElement("span");
-      span.className = `shrink-0 border rounded px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`;
-      span.title = badge.title;
-      span.textContent = badge.label;
+      span.className = `shrink-0 border rounded px-1.5 py-0.5 text-[10px] font-medium ${UNKNOWN_BADGE.className}`;
+      span.title = UNKNOWN_BADGE.title;
+      span.textContent = UNKNOWN_BADGE.label;
       nameCell.append(span);
     }
     tr.append(cell("px-4 py-2 font-medium min-w-0", nameCell));
@@ -235,7 +212,6 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
     }
 
     searchControls?.classList.toggle("hidden", visible === 0);
-    updateOpenControls(matches);
 
     if (matches.length === 0) {
       setControlsVisible(false);
@@ -253,61 +229,6 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
 
     setControlsVisible(true);
     renderPage(matches);
-  }
-
-  function updateOpenControls(matches: Account[]) {
-    const openedCount = matches.filter((account) => opened.has(account.username)).length;
-    if (openProgress) {
-      openProgress.textContent = openedCount > 0 ? `${openedCount}/${matches.length} opened` : "";
-    }
-    if (!openBatchButton) return;
-    const waitSeconds = Math.ceil((cooldownUntil - Date.now()) / 1000);
-    const allOpened = openedCount === matches.length;
-    openBatchButton.disabled = allOpened || waitSeconds > 0;
-    openBatchButton.textContent =
-      waitSeconds > 0 && !allOpened ? `Next batch in ${waitSeconds}s` : `Open next ${OPEN_BATCH_SIZE}`;
-  }
-
-  function startCooldown() {
-    cooldownUntil = Date.now() + OPEN_COOLDOWN_MS;
-    clearInterval(cooldownTimer);
-    cooldownTimer = window.setInterval(() => {
-      if (Date.now() >= cooldownUntil) clearInterval(cooldownTimer);
-      updateOpenControls(searchMatches());
-    }, 1000);
-  }
-
-  // Opens the next unopened search matches in new tabs. Browsers only allow one
-  // popup per click unless the user allows popups for this site, so stop at
-  // the first blocked window and explain.
-  function openNextBatch() {
-    const matches = searchMatches();
-    const batch = matches
-      .filter((account) => !opened.has(account.username))
-      .slice(0, OPEN_BATCH_SIZE);
-    let lastOpened: Account | undefined;
-    setError("");
-    for (const account of batch) {
-      // No "noopener" feature: with it, window.open always returns null and a
-      // blocked popup can't be detected.
-      const win = window.open(account.href, "_blank");
-      if (!win) {
-        setError(
-          `Your browser blocked the extra tabs. Allow pop-ups for this site (icon in the address bar), then click “Open next ${OPEN_BATCH_SIZE}” again.`
-        );
-        break;
-      }
-      win.opener = null;
-      opened.add(account.username);
-      lastOpened = account;
-    }
-    // A blocked batch opened at most one tab, so only a full batch earns the pause.
-    if (lastOpened && lastOpened === batch[batch.length - 1]) startCooldown();
-    // Show the page holding the last opened account so progress stays visible.
-    if (lastOpened) {
-      currentPage = Math.floor(matches.indexOf(lastOpened) / itemsPerPage) + 1;
-    }
-    render();
   }
 
   function renderPage(matches = searchMatches()) {
@@ -415,7 +336,6 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
 
   prevButton?.addEventListener("click", () => goToPage(currentPage - 1));
   nextButton?.addEventListener("click", () => goToPage(currentPage + 1));
-  openBatchButton?.addEventListener("click", openNextBatch);
 
   function resetSearch() {
     currentPage = 1;
@@ -427,7 +347,6 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
     /** Replace the full (unfiltered) non-followers list and re-render. */
     setResults(accounts: Account[]) {
       allAccounts = accounts;
-      opened = new Set();
       resetSearch();
       refresh();
     },
@@ -437,13 +356,19 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
       return visibleAccounts;
     },
 
-    /** Record check results by username and re-render the current page. */
-    setStatuses(statuses: ReadonlyMap<string, AccountStatus>) {
-      for (const account of allAccounts) {
+    /**
+     * Record check results by username, drop accounts whose profile is
+     * unavailable, and re-render. Returns how many accounts were dropped.
+     */
+    setStatuses(statuses: ReadonlyMap<string, AccountStatus>): number {
+      const before = allAccounts.length;
+      allAccounts = allAccounts.filter((account) => {
         const status = statuses.get(account.username);
         if (status) account.status = status;
-      }
-      render();
+        return account.status !== "unavailable";
+      });
+      refresh();
+      return before - allAccounts.length;
     },
 
     /** Add usernames to the hidden list (needs `hiddenKey`). */
@@ -458,7 +383,6 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
     clear(message: string) {
       allAccounts = [];
       visibleAccounts = [];
-      opened = new Set();
       resetSearch();
       if (summary) summary.textContent = message;
       searchControls?.classList.add("hidden");
