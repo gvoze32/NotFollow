@@ -22,6 +22,11 @@ type ResultsOptions = {
 
 const MAX_PAGE_BUTTONS = 5;
 
+// "Open next N" tabs: Instagram publishes no limit for profile views, so stay
+// conservative — a few tabs per click and a pause before the next batch.
+const OPEN_BATCH_SIZE = 5;
+const OPEN_COOLDOWN_MS = 60_000;
+
 const PAGE_BUTTON_CLASS =
   "w-8 h-8 border rounded-lg text-xs font-medium transition-all";
 const PAGE_BUTTON_ACTIVE_CLASS =
@@ -88,7 +93,6 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
   const resetHiddenButton = byId("reset-hidden");
   const hiddenCountEl = byId("hidden-count");
   const openBatchButton = byId<HTMLButtonElement>("open-batch");
-  const openBatchSize = byId<HTMLSelectElement>("open-batch-size");
   const openProgress = byId("open-progress");
 
   const columnCount = 2 + (avatars ? 1 : 0) + (hiddenKey ? 1 : 0);
@@ -98,8 +102,10 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
   let currentPage = 1;
   let itemsPerPage = Number(itemsPerPageSelect?.value) || 10;
   let searchQuery = "";
-  // Usernames already opened via "Open next tabs" for the current results.
+  // Usernames already opened via the batch-open button for the current results.
   let opened = new Set<string>();
+  let cooldownUntil = 0;
+  let cooldownTimer: number | undefined;
 
   function loadHidden(): Set<string> {
     if (!hiddenKey) return new Set();
@@ -254,16 +260,31 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
     if (openProgress) {
       openProgress.textContent = openedCount > 0 ? `${openedCount}/${matches.length} opened` : "";
     }
-    if (openBatchButton) openBatchButton.disabled = openedCount === matches.length;
+    if (!openBatchButton) return;
+    const waitSeconds = Math.ceil((cooldownUntil - Date.now()) / 1000);
+    const allOpened = openedCount === matches.length;
+    openBatchButton.disabled = allOpened || waitSeconds > 0;
+    openBatchButton.textContent =
+      waitSeconds > 0 && !allOpened ? `Next batch in ${waitSeconds}s` : `Open next ${OPEN_BATCH_SIZE}`;
+  }
+
+  function startCooldown() {
+    cooldownUntil = Date.now() + OPEN_COOLDOWN_MS;
+    clearInterval(cooldownTimer);
+    cooldownTimer = window.setInterval(() => {
+      if (Date.now() >= cooldownUntil) clearInterval(cooldownTimer);
+      updateOpenControls(searchMatches());
+    }, 1000);
   }
 
   // Opens the next unopened search matches in new tabs. Browsers only allow one
   // popup per click unless the user allows popups for this site, so stop at
   // the first blocked window and explain.
   function openNextBatch() {
-    const size = Number(openBatchSize?.value) || 5;
     const matches = searchMatches();
-    const batch = matches.filter((account) => !opened.has(account.username)).slice(0, size);
+    const batch = matches
+      .filter((account) => !opened.has(account.username))
+      .slice(0, OPEN_BATCH_SIZE);
     let lastOpened: Account | undefined;
     setError("");
     for (const account of batch) {
@@ -272,7 +293,7 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
       const win = window.open(account.href, "_blank");
       if (!win) {
         setError(
-          "Your browser blocked the extra tabs. Allow pop-ups for this site (icon in the address bar), then click “Open next tabs” again."
+          `Your browser blocked the extra tabs. Allow pop-ups for this site (icon in the address bar), then click “Open next ${OPEN_BATCH_SIZE}” again.`
         );
         break;
       }
@@ -280,6 +301,8 @@ export function createResultsView({ hiddenKey, avatars = false }: ResultsOptions
       opened.add(account.username);
       lastOpened = account;
     }
+    // A blocked batch opened at most one tab, so only a full batch earns the pause.
+    if (lastOpened && lastOpened === batch[batch.length - 1]) startCooldown();
     // Show the page holding the last opened account so progress stays visible.
     if (lastOpened) {
       currentPage = Math.floor(matches.indexOf(lastOpened) / itemsPerPage) + 1;

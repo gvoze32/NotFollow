@@ -32,7 +32,7 @@ Type any GitHub username and click **Check Non-Followers**. No file needed.
 ## Good to know
 
 - **"Sorry, this page isn't available" on Instagram.** Usually the account was deactivated, deleted, or renamed. Deactivated accounts also disappear from your followers file, so they show up here even if they followed you. Click **Check status**, then **Hide unavailable** to remove them from the list.
-- **Opening profiles faster.** Pick 5 or 10 and click **Open next tabs**. Your browser opens only one tab per click until you allow pop-ups for the site (icon in the address bar). Opening lots of profiles very quickly can make Instagram show "page isn't available" for a while, so take it in small batches.
+- **Opening profiles faster.** Click **Open next 5** to open five profiles in new tabs. The button then waits 60 seconds before the next five, because opening lots of profiles quickly can make Instagram show "page isn't available" for a while. Your browser opens only one tab per click until you allow pop-ups for the site (icon in the address bar).
 - **Hide.** Hidden accounts stay hidden on your device next time you check. **Reset hidden** brings them back.
 
 ## Privacy

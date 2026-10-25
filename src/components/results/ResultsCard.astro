@@ -72,21 +72,13 @@ const navButtonClass =
                         class="block w-full max-w-sm text-sm text-gray-900 dark:text-gray-200 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-gray-900 px-3 py-2 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200"
                     />
 
-                    <!-- Batch-open profiles in new tabs; driven by results.ts -->
+                    <!-- Batch-open profiles in new tabs; label, batch size and cooldown come from results.ts -->
                     <div class="flex items-center gap-2">
-                        <label for="open-batch-size" class="sr-only">Tabs per batch</label>
-                        <select
-                            id="open-batch-size"
-                            class="text-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg px-2 py-1.5 focus:outline-none focus:border-zinc-800 dark:focus:border-zinc-200 cursor-pointer"
-                        >
-                            <option value="5" selected>5</option>
-                            <option value="10">10</option>
-                        </select>
                         <button
                             type="button"
                             id="open-batch"
                             class={navButtonClass}
-                            title="Open the next unopened profiles in new tabs. Opening many profiles quickly can make the platform temporarily show 'page isn't available'."
+                            title="Opens a few profiles at a time with a pause in between, so the platform doesn't start showing 'page isn't available'."
                         >
                             Open next tabs
                         </button>
